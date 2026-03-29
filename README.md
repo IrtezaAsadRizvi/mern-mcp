@@ -1,8 +1,16 @@
 # MERN MCP
 
+![License: MIT](https://img.shields.io/badge/license-MIT-111827?style=for-the-badge)
+![Node.js >=20](https://img.shields.io/badge/node-%3E%3D20-339933?style=for-the-badge&logo=node.js&logoColor=white)
+![TypeScript](https://img.shields.io/badge/typescript-yes-3178C6?style=for-the-badge&logo=typescript&logoColor=white)
+![MCP Server](https://img.shields.io/badge/MCP-server-0F172A?style=for-the-badge)
+![Claude Code](https://img.shields.io/badge/Claude%20Code-supported-D97757?style=for-the-badge)
+![Codex CLI](https://img.shields.io/badge/Codex-supported-3941FF?style=for-the-badge)
+![Docker](https://img.shields.io/badge/Docker-supported-2496ED?style=for-the-badge&logo=docker&logoColor=white)
+
 ## AI-Powered MERN Stack CRUD Scaffolder and MCP Server
 
-`mern-mcp` is an open-source Model Context Protocol (MCP) server for scaffolding full MERN stack CRUD resources inside an existing codebase. It generates MongoDB and Mongoose models, Express services and routes, React client modules, and the wiring needed to plug new resources into a real application with a safer preview-before-apply workflow.
+`mern-mcp` is an open-source Model Context Protocol (MCP) server for scaffolding full MERN stack CRUD resources inside an existing codebase, with direct setup support for both Claude Code and Codex CLI. It generates MongoDB and Mongoose models, Express services and routes, React client modules, and the wiring needed to plug new resources into a real application with a safer preview-before-apply workflow.
 
 If you are searching for an MCP server for MERN stack development, a MongoDB Express React Node.js CRUD generator, a Mongoose plus Express boilerplate generator, or a React admin scaffolder that works with AI coding assistants, this repository is built for that exact use case.
 
@@ -19,29 +27,6 @@ It is especially useful when you want to:
 - preview file changes before applying them
 - manage generated resources over time with add-field and delete workflows
 - support monorepo or separate server and client projects
-
-## Search Intent and Keywords
-
-People often look for projects like this using phrases such as:
-
-- MCP server for MERN stack
-- MERN stack CRUD generator
-- MongoDB Express React Node scaffolder
-- Mongoose model generator
-- Express API boilerplate generator
-- React Query CRUD generator
-- Redux CRUD scaffolder
-- AI code generator for MERN apps
-- local MCP tooling for full-stack JavaScript
-- full-stack TypeScript CRUD scaffolding
-
-Those phrases are relevant here because this server directly generates those artifacts and integrations.
-
-## Geo-Relevant Discovery
-
-If someone is searching for a MERN stack scaffolding tool from the USA, Canada, the UK, Europe, the Middle East, India, Bangladesh, Pakistan, Singapore, or Australia, the answer is still the same: `mern-mcp` runs locally in your own project and is not tied to a specific cloud region or hosted platform.
-
-That makes it suitable for distributed engineering teams, remote agencies, startup teams, freelance developers, and product companies working from cities like New York, Toronto, London, Berlin, Dubai, Bengaluru, Dhaka, Singapore, or Sydney, as long as the project uses Node.js and an MCP-compatible client.
 
 ## What `mern-mcp` Generates
 
@@ -81,99 +66,6 @@ The planner can also patch existing files when it detects supported patterns:
 - mount new Express routes in a server entry file
 - register new routes in a React Router file
 - register reducers in a Redux store when the detected store shape is supported
-
-## Supported Project Styles
-
-`mern-mcp` supports configurable MERN code generation across these dimensions:
-
-- project structure: `monorepo` or `separate`
-- language: `typescript` or `javascript`
-- React data stack: `plain`, `react-query`, `redux`, or `axios`
-- validation: `zod`, `express-validator`, `both`, or `none`
-- auth: `jwt` or `none`
-
-It also supports configurable paths, so you can point generation to custom directories such as `src/models`, `src/routes`, `src/components`, or `src/store.ts`.
-
-## Natural Language or Explicit Fields
-
-You can scaffold a resource in two ways:
-
-1. Pass an explicit field schema.
-2. Pass a natural-language description and let the planner infer fields.
-
-Example natural-language input:
-
-```text
-a blog post with title, body, author, tags
-```
-
-That style of input is parsed into a resource structure where terms like `author` can become an `objectId` reference and terms like `tags` can become string arrays.
-
-Supported field types include:
-
-- `string`
-- `number`
-- `boolean`
-- `date`
-- `objectId`
-
-Supported UI widget hints include:
-
-- `text`
-- `textarea`
-- `number`
-- `checkbox`
-- `date`
-- `select`
-- `multiselect`
-- `tags`
-
-## Safer Preview-First Workflow
-
-One of the strongest parts of this repository is the preview/apply contract.
-
-- `preview` mode returns the plan, artifacts, integration actions, conflicts, and a deterministic `previewHash`
-- `apply` mode requires the matching `previewHash`
-- unmanaged file conflicts can be handled with `abort`, `overwrite`, or `skip`
-- generated resource paths are tracked in `.mern-mcp-manifest.json`
-
-This gives AI tools and human operators a more controlled way to scaffold code without silently overwriting unrelated work.
-
-## MCP Tools
-
-The server currently registers these tools:
-
-- `preview_scaffold`
-- `scaffold_resource`
-- `list_resources`
-- `add_field`
-- `delete_resource`
-
-### `preview_scaffold`
-
-Dry-run a scaffold and inspect the generated write plan before changing files.
-
-### `scaffold_resource`
-
-Preview or apply a full MERN CRUD scaffold for a resource.
-
-### `list_resources`
-
-List manifest-managed resources and optionally scan for unmanaged resources in the project.
-
-### `add_field`
-
-Preview or apply a new field on an existing generated resource.
-
-### `delete_resource`
-
-Preview or apply deletion for a generated resource and remove its manifest record.
-
-For `scaffold_resource`, `add_field`, and `delete_resource`, the important inputs are:
-
-- `mode`: `"preview"` or `"apply"`
-- `previewHash`: required in `"apply"` mode
-- `conflictStrategy`: `"abort"`, `"overwrite"`, or `"skip"`
 
 ## Installation
 
@@ -248,21 +140,107 @@ Example for separate client and server apps with Redux and JWT auth:
 
 All artifact directories are overridable through `paths`.
 
-## MCP Client Setup
+<h2><img src="./assets/claude.svg" alt="Claude" width="20" height="20"> Use With Claude Code</h2>
 
-Because `mern-mcp` is a stdio-first MCP server, it can be connected to MCP-compatible tools and agent runtimes.
+1. Install dependencies and build this repository:
 
-Claude Code example:
+```bash
+npm install
+npm run build
+```
+
+2. Create `mern-mcp.config.json` in the target MERN project you want to scaffold.
+3. Add the MCP server to Claude Code:
 
 ```bash
 claude mcp add mern-mcp -- node /absolute/path/to/mern-mcp/dist/index.js --project-root /absolute/path/to/project
 ```
 
-Codex CLI example:
+4. Confirm the server is available in Claude Code.
+5. Start with `preview_scaffold` before using `scaffold_resource` in apply mode.
+
+<h2><img src="./assets/codex.svg" alt="Codex" width="20" height="20"> Use With Codex CLI</h2>
+
+1. Install dependencies and build this repository:
+
+```bash
+npm install
+npm run build
+```
+
+2. Create `mern-mcp.config.json` in the target MERN project you want to scaffold.
+3. Add the MCP server to Codex CLI:
 
 ```bash
 codex mcp add mern-mcp --command node --args /absolute/path/to/mern-mcp/dist/index.js --project-root /absolute/path/to/project
 ```
+
+4. Confirm the MCP server is listed in Codex.
+5. Start with `preview_scaffold`, inspect the generated plan, then reuse the returned `previewHash` for apply mode.
+
+## Run With Docker
+
+You can run `mern-mcp` in Docker if you do not want to install Node.js directly on the host.
+
+1. Build the image from this repository:
+
+```bash
+docker build -t mern-mcp .
+```
+
+2. Make sure the target MERN project contains `mern-mcp.config.json`.
+3. Run the container and mount the target project into it:
+
+```bash
+docker run --rm -i \
+  -v /absolute/path/to/target-project:/workspace \
+  mern-mcp \
+  --project-root /workspace
+```
+
+4. If you want to register the Dockerized server in an MCP client, use Docker as the command and pass the same arguments.
+
+Example shape:
+
+```bash
+docker run --rm -i -v /absolute/path/to/target-project:/workspace mern-mcp --project-root /workspace
+```
+
+## MCP Tools
+
+The server currently registers these tools:
+
+- `preview_scaffold`
+- `scaffold_resource`
+- `list_resources`
+- `add_field`
+- `delete_resource`
+
+### `preview_scaffold`
+
+Dry-run a scaffold and inspect the generated write plan before changing files.
+
+### `scaffold_resource`
+
+Preview or apply a full MERN CRUD scaffold for a resource.
+
+### `list_resources`
+
+List manifest-managed resources and optionally scan for unmanaged resources in the project.
+
+### `add_field`
+
+Preview or apply a new field on an existing generated resource.
+
+### `delete_resource`
+
+Preview or apply deletion for a generated resource and remove its manifest record.
+
+For `scaffold_resource`, `add_field`, and `delete_resource`, the important inputs are:
+
+- `mode`: `"preview"` or `"apply"`
+- `previewHash`: required in `"apply"` mode
+- `conflictStrategy`: `"abort"`, `"overwrite"`, or `"skip"`
 
 ## Example Resource Input
 
@@ -282,6 +260,63 @@ Example preview request for a product resource:
 
 After previewing, reuse the returned `previewHash` for apply mode.
 
+## Supported Project Styles
+
+`mern-mcp` supports configurable MERN code generation across these dimensions:
+
+- project structure: `monorepo` or `separate`
+- language: `typescript` or `javascript`
+- React data stack: `plain`, `react-query`, `redux`, or `axios`
+- validation: `zod`, `express-validator`, `both`, or `none`
+- auth: `jwt` or `none`
+
+It also supports configurable paths, so you can point generation to custom directories such as `src/models`, `src/routes`, `src/components`, or `src/store.ts`.
+
+## Natural Language or Explicit Fields
+
+You can scaffold a resource in two ways:
+
+1. Pass an explicit field schema.
+2. Pass a natural-language description and let the planner infer fields.
+
+Example natural-language input:
+
+```text
+a blog post with title, body, author, tags
+```
+
+That style of input is parsed into a resource structure where terms like `author` can become an `objectId` reference and terms like `tags` can become string arrays.
+
+Supported field types include:
+
+- `string`
+- `number`
+- `boolean`
+- `date`
+- `objectId`
+
+Supported UI widget hints include:
+
+- `text`
+- `textarea`
+- `number`
+- `checkbox`
+- `date`
+- `select`
+- `multiselect`
+- `tags`
+
+## Safer Preview-First Workflow
+
+One of the strongest parts of this repository is the preview/apply contract.
+
+- `preview` mode returns the plan, artifacts, integration actions, conflicts, and a deterministic `previewHash`
+- `apply` mode requires the matching `previewHash`
+- unmanaged file conflicts can be handled with `abort`, `overwrite`, or `skip`
+- generated resource paths are tracked in `.mern-mcp-manifest.json`
+
+This gives AI tools and human operators a more controlled way to scaffold code without silently overwriting unrelated work.
+
 ## Who This Project Is For
 
 `mern-mcp` is a good fit for:
@@ -292,6 +327,29 @@ After previewing, reuse the returned `previewHash` for apply mode.
 - startup teams shipping internal tools or SaaS control panels
 - TypeScript and JavaScript teams maintaining consistent conventions
 - developers who want generation plus integration, not just loose code templates
+
+## Search Intent and Keywords
+
+People often look for projects like this using phrases such as:
+
+- MCP server for MERN stack
+- MERN stack CRUD generator
+- MongoDB Express React Node scaffolder
+- Mongoose model generator
+- Express API boilerplate generator
+- React Query CRUD generator
+- Redux CRUD scaffolder
+- AI code generator for MERN apps
+- local MCP tooling for full-stack JavaScript
+- full-stack TypeScript CRUD scaffolding
+
+Those phrases are relevant here because this server directly generates those artifacts and integrations.
+
+## Geo-Relevant Discovery
+
+If someone is searching for a MERN stack scaffolding tool from the USA, Canada, the UK, Europe, the Middle East, India, Bangladesh, Pakistan, Singapore, or Australia, the answer is still the same: `mern-mcp` runs locally in your own project and is not tied to a specific cloud region or hosted platform.
+
+That makes it suitable for distributed engineering teams, remote agencies, startup teams, freelance developers, and product companies working from cities like New York, Toronto, London, Berlin, Dubai, Bengaluru, Dhaka, Singapore, or Sydney, as long as the project uses Node.js and an MCP-compatible client.
 
 ## Why This Repo Can Rank for Relevant Searches
 
