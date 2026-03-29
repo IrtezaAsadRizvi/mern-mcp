@@ -5,12 +5,12 @@
 
 <p align="center">
   <img alt="License: MIT" src="https://img.shields.io/badge/license-MIT-111827?style=for-the-badge">
-  <img alt="Node.js >=20" src="https://img.shields.io/badge/node-%3E%3D20-339933?style=for-the-badge&logo=node.js&logoColor=white">
-  <img alt="TypeScript" src="https://img.shields.io/badge/typescript-yes-3178C6?style=for-the-badge&logo=typescript&logoColor=white">
+  <img alt="Node.js 20+" src="https://img.shields.io/badge/node-20%2B-339933?style=for-the-badge&amp;logo=node.js&amp;logoColor=white">
+  <img alt="TypeScript" src="https://img.shields.io/badge/typescript-yes-3178C6?style=for-the-badge&amp;logo=typescript&amp;logoColor=white">
   <img alt="MCP Server" src="https://img.shields.io/badge/MCP-server-0F172A?style=for-the-badge">
   <img alt="Claude Code" src="https://img.shields.io/badge/Claude%20Code-supported-D97757?style=for-the-badge">
   <img alt="Codex CLI" src="https://img.shields.io/badge/Codex-supported-3941FF?style=for-the-badge">
-  <img alt="Docker" src="https://img.shields.io/badge/Docker-supported-2496ED?style=for-the-badge&logo=docker&logoColor=white">
+  <img alt="Docker" src="https://img.shields.io/badge/Docker-supported-2496ED?style=for-the-badge&amp;logo=docker&amp;logoColor=white">
 </p>
 
 ## AI-Powered MERN Stack CRUD Scaffolder and MCP Server
@@ -19,7 +19,7 @@
 
 If you are searching for an MCP server for MERN stack development, a MongoDB Express React Node.js CRUD generator, a Mongoose plus Express boilerplate generator, or a React admin scaffolder that works with AI coding assistants, this repository is built for that exact use case.
 
-**Index:** [Why Useful](#why-this-repository-is-useful) · [Generated Files](#what-mern-mcp-generates) · [Install](#installation) · [Config](#configuration) · [Claude Code](#use-with-claude-code) · [Codex CLI](#use-with-codex-cli) · [Docker](#run-with-docker) · [MCP Tools](#mcp-tools) · [Example](#example-resource-input) · [Project Styles](#supported-project-styles) · [Natural Language](#natural-language-or-explicit-fields) · [Preview Workflow](#safer-preview-first-workflow) · [Who It's For](#who-this-project-is-for) · [Search Keywords](#search-intent-and-keywords) · [Geo Discovery](#geo-relevant-discovery) · [SEO Value](#why-this-repo-can-rank-for-relevant-searches) · [Checks](#development-checks)
+**Index:** [Why Useful](#why-this-repository-is-useful) · [Generated Files](#what-mern-mcp-generates) · [Install](#installation) · [Config](#configuration) · [Claude Code](#use-with-claude-code) · [Codex CLI](#use-with-codex-cli) · [Docker](#run-with-docker) · [MCP Tools](#mcp-tools) · [Example](#example-resource-input) · [Project Styles](#supported-project-styles) · [Natural Language](#natural-language-or-explicit-fields) · [Preview Workflow](#safer-preview-first-workflow) · [Who It's For](#who-this-project-is-for)
 
 ## Why This Repository Is Useful
 
