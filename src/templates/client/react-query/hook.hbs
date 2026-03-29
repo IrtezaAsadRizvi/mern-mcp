@@ -1,0 +1,75 @@
+{{#if isTypeScript}}
+import type { {{entityName}}, {{formValuesName}} } from "../types/{{names.singularKebab}}.types";
+{{/if}}
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+
+import {
+  create{{entityName}},
+  delete{{entityName}},
+  get{{entityName}},
+  list{{names.pluralPascal}},
+  update{{entityName}}
+} from "../api/{{names.singularKebab}}.api";
+
+export function use{{entityName}}() {
+  const queryClient = useQueryClient();
+  const queryKey = ["{{storeKey}}"];
+  const listQuery = useQuery({
+    queryKey,
+    queryFn: list{{names.pluralPascal}}
+  });
+
+  const createMutation = useMutation({
+    mutationFn: (payload{{#if isTypeScript}}: {{formValuesName}}{{/if}}) => create{{entityName}}(payload),
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey });
+    }
+  });
+
+  const updateMutation = useMutation({
+    mutationFn: ({ id, payload }{{#if isTypeScript}}: { id: string; payload: {{formValuesName}} }{{/if}}) =>
+      update{{entityName}}(id, payload),
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey });
+    }
+  });
+
+  const deleteMutation = useMutation({
+    mutationFn: (id{{#if isTypeScript}}: string{{/if}}) => delete{{entityName}}(id),
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey });
+    }
+  });
+
+  const refresh = async () => queryClient.fetchQuery({ queryKey, queryFn: list{{names.pluralPascal}} });
+
+  const loadItem = async (id{{#if isTypeScript}}: string{{/if}}) =>
+    queryClient.fetchQuery({
+      queryKey: [...queryKey, id],
+      queryFn: () => get{{entityName}}(id)
+    });
+
+  return {
+    items: listQuery.data ?? [],
+    item: null,
+    isLoading:
+      listQuery.isLoading ||
+      createMutation.isPending ||
+      updateMutation.isPending ||
+      deleteMutation.isPending,
+    error:
+      listQuery.error?.message ??
+      createMutation.error?.message ??
+      updateMutation.error?.message ??
+      deleteMutation.error?.message ??
+      null,
+    refresh,
+    loadItem,
+    createItem: createMutation.mutateAsync,
+    updateItem: (id{{#if isTypeScript}}: string{{/if}}, payload{{#if isTypeScript}}: {{formValuesName}}{{/if}}) =>
+      updateMutation.mutateAsync({ id, payload }),
+    deleteItem: deleteMutation.mutateAsync
+  };
+}
+
+export default use{{entityName}};

@@ -1,0 +1,34 @@
+import { {{entityName}}Model{{#if isTypeScript}}, type {{entityName}}Document{{/if}} } from "../models/{{names.singularKebab}}.model";
+
+{{#if isTypeScript}}
+export type {{entityName}}Payload = Partial<{{entityName}}Document>;
+
+{{/if}}
+export async function list{{names.pluralPascal}}() {
+  return {{entityName}}Model.find().lean();
+}
+
+export async function get{{entityName}}ById(id{{#if isTypeScript}}: string{{/if}}) {
+  return {{entityName}}Model.findById(id).lean();
+}
+
+export async function create{{entityName}}(
+  payload{{#if isTypeScript}}: {{entityName}}Payload{{/if}}
+) {
+  const created = await {{entityName}}Model.create(payload);
+  return created.toObject();
+}
+
+export async function update{{entityName}}(
+  id{{#if isTypeScript}}: string{{/if}},
+  payload{{#if isTypeScript}}: {{entityName}}Payload{{/if}}
+) {
+  return {{entityName}}Model.findByIdAndUpdate(id, payload, {
+    new: true,
+    runValidators: true
+  }).lean();
+}
+
+export async function delete{{entityName}}(id{{#if isTypeScript}}: string{{/if}}) {
+  return {{entityName}}Model.findByIdAndDelete(id).lean();
+}

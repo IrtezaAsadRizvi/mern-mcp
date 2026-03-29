@@ -1,0 +1,24 @@
+{
+  "structure": "separate",
+  "language": "typescript",
+  "reactStack": "redux",
+  "validation": "both",
+  "auth": "jwt",
+  "paths": {
+    "serverRoot": "./server",
+    "clientRoot": "./client",
+    "modelsDir": "src/models",
+    "servicesDir": "src/services",
+    "controllersDir": "src/controllers",
+    "routesDir": "src/routes",
+    "validatorsDir": "src/validators",
+    "middlewareDir": "src/middleware",
+    "componentsDir": "src/components",
+    "hooksDir": "src/hooks",
+    "apiDir": "src/api",
+    "typesDir": "src/types",
+    "serverEntry": "src/index.ts",
+    "clientRouter": "src/router.tsx",
+    "clientStore": "src/store.ts"
+  }
+}

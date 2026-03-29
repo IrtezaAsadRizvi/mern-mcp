@@ -1,0 +1,75 @@
+import React from "react";
+{{#if isTypeScript}}
+import type { {{entityName}} } from "../types/{{names.singularKebab}}.types";
+{{/if}}
+import { {{fieldConfigName}} } from "../types/{{names.singularKebab}}.types";
+import { use{{entityName}} } from "../hooks/use{{entityName}}";
+
+function renderCellValue(value{{#if isTypeScript}}: unknown{{/if}}) {
+  if (Array.isArray(value)) {
+    return value.join(", ");
+  }
+
+  if (typeof value === "boolean") {
+    return value ? "Yes" : "No";
+  }
+
+  return value ? String(value) : "—";
+}
+
+{{#if isTypeScript}}
+export interface {{entityName}}ListProps {
+  onSelect?: (item: {{entityName}}) => void;
+}
+{{/if}}
+
+{{#if isTypeScript}}
+export function {{entityName}}List({ onSelect }: {{entityName}}ListProps) {
+{{else}}
+export function {{entityName}}List({ onSelect }) {
+{{/if}}
+  const { items, deleteItem, isLoading, error } = use{{entityName}}();
+
+  if (isLoading) {
+    return <p>Loading {{names.pluralCamel}}...</p>;
+  }
+
+  return (
+    <section>
+      <h2>{{names.pluralPascal}}</h2>
+      {error ? <p role="alert">{String(error)}</p> : null}
+      {items.length === 0 ? <p>No {{names.pluralCamel}} found.</p> : null}
+      {items.length > 0 ? (
+        <table>
+          <thead>
+            <tr>
+              { {{fieldConfigName}}.map((field) => <th key={field.key}>{field.label}</th>) }
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {items.map((item) => (
+              <tr key={item._id ?? JSON.stringify(item)}>
+                { {{fieldConfigName}}.map((field) => (
+                  <td key={field.key}>{renderCellValue(item[field.key])}</td>
+                )) }
+                <td>
+                  <button type="button" onClick={() => onSelect?.(item)}>
+                    View
+                  </button>
+                  {item._id ? (
+                    <button type="button" onClick={() => deleteItem(item._id)}>
+                      Delete
+                    </button>
+                  ) : null}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      ) : null}
+    </section>
+  );
+}
+
+export default {{entityName}}List;

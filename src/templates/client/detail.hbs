@@ -1,0 +1,77 @@
+import React, { useEffect, useState } from "react";
+{{#if isTypeScript}}
+import type { {{entityName}} } from "../types/{{names.singularKebab}}.types";
+{{/if}}
+import { {{fieldConfigName}} } from "../types/{{names.singularKebab}}.types";
+import { use{{entityName}} } from "../hooks/use{{entityName}}";
+
+function renderFieldValue(value{{#if isTypeScript}}: unknown{{/if}}) {
+  if (Array.isArray(value)) {
+    return value.join(", ");
+  }
+
+  if (typeof value === "boolean") {
+    return value ? "Yes" : "No";
+  }
+
+  return value ? String(value) : "—";
+}
+
+{{#if isTypeScript}}
+export interface {{entityName}}DetailProps {
+  id?: string;
+  item?: {{entityName}} | null;
+  onEdit?: (item: {{entityName}}) => void;
+}
+{{/if}}
+
+{{#if isTypeScript}}
+export function {{entityName}}Detail({ id, item, onEdit }: {{entityName}}DetailProps) {
+{{else}}
+export function {{entityName}}Detail({ id, item, onEdit }) {
+{{/if}}
+  const { loadItem, isLoading, error } = use{{entityName}}();
+  const [resolvedItem, setResolvedItem] = useState(item ?? null);
+
+  useEffect(() => {
+    setResolvedItem(item ?? null);
+  }, [item]);
+
+  useEffect(() => {
+    if (!id) {
+      return;
+    }
+
+    void loadItem(id).then((nextItem) => {
+      setResolvedItem(nextItem);
+    });
+  }, [id]);
+
+  if (!resolvedItem && isLoading) {
+    return <p>Loading {{entityName}}...</p>;
+  }
+
+  if (!resolvedItem) {
+    return <p>No {{entityName}} selected.</p>;
+  }
+
+  return (
+    <section>
+      <h2>{{entityName}} details</h2>
+      {error ? <p role="alert">{String(error)}</p> : null}
+      <dl>
+        { {{fieldConfigName}}.map((field) => (
+          <React.Fragment key={field.key}>
+            <dt>{field.label}</dt>
+            <dd>{renderFieldValue(resolvedItem[field.key])}</dd>
+          </React.Fragment>
+        )) }
+      </dl>
+      <button type="button" onClick={() => onEdit?.(resolvedItem)}>
+        Edit
+      </button>
+    </section>
+  );
+}
+
+export default {{entityName}}Detail;

@@ -1,0 +1,36 @@
+{{#if isTypeScript}}
+import type { NextFunction, Request, Response } from "express";
+import jwt, { type JwtPayload } from "jsonwebtoken";
+
+type AuthenticatedRequest = Request & {
+  user?: string | JwtPayload;
+};
+{{else}}
+import jwt from "jsonwebtoken";
+{{/if}}
+
+export function authMiddleware(request{{#if isTypeScript}}: Request{{/if}}, response{{#if isTypeScript}}: Response{{/if}}, next{{#if isTypeScript}}: NextFunction{{/if}}) {
+  const header = request.headers.authorization;
+
+  if (!header || !header.startsWith("Bearer ")) {
+    response.status(401).json({
+      message: "Missing bearer token"
+    });
+    return;
+  }
+
+  const token = header.slice("Bearer ".length);
+
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET ?? "change-me");
+    {{#if isTypeScript}}
+    (request as AuthenticatedRequest).user = decoded;
+    {{/if}}
+    next();
+  } catch (error) {
+    response.status(401).json({
+      message: "Invalid bearer token",
+      error: error instanceof Error ? error.message : "Unknown error"
+    });
+  }
+}

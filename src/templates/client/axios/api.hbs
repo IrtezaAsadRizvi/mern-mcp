@@ -1,0 +1,37 @@
+import axios from "axios";
+{{#if isTypeScript}}
+import type { {{entityName}}, {{formValuesName}} } from "../types/{{names.singularKebab}}.types";
+{{/if}}
+
+const client = axios.create({
+  baseURL: "{{apiBasePath}}"
+});
+
+export async function list{{names.pluralPascal}}(){{#if isTypeScript}}: Promise<{{entityName}}[]>{{/if}} {
+  const { data } = await client.get("/");
+  return data;
+}
+
+export async function get{{entityName}}(id{{#if isTypeScript}}: string{{/if}}){{#if isTypeScript}}: Promise<{{entityName}}>{{/if}} {
+  const { data } = await client.get(`/${id}`);
+  return data;
+}
+
+export async function create{{entityName}}(
+  payload{{#if isTypeScript}}: {{formValuesName}}{{/if}}
+){{#if isTypeScript}}: Promise<{{entityName}}>{{/if}} {
+  const { data } = await client.post("/", payload);
+  return data;
+}
+
+export async function update{{entityName}}(
+  id{{#if isTypeScript}}: string{{/if}},
+  payload{{#if isTypeScript}}: {{formValuesName}}{{/if}}
+){{#if isTypeScript}}: Promise<{{entityName}}>{{/if}} {
+  const { data } = await client.put(`/${id}`, payload);
+  return data;
+}
+
+export async function delete{{entityName}}(id{{#if isTypeScript}}: string{{/if}}){{#if isTypeScript}}: Promise<void>{{/if}} {
+  await client.delete(`/${id}`);
+}

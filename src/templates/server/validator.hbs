@@ -1,0 +1,76 @@
+{{#if usesZod}}
+import { z } from "zod/v4";
+{{/if}}
+{{#if usesExpressValidator}}
+import { body, validationResult } from "express-validator";
+{{/if}}
+{{#if isTypeScript}}
+import type { NextFunction, Request, Response } from "express";
+{{/if}}
+
+{{#if usesZod}}
+const create{{entityName}}Schema = z.object({
+{{#each fields}}
+  {{key}}: {{{zodSchema}}}{{#unless @last}},{{/unless}}
+{{/each}}
+});
+
+const update{{entityName}}Schema = create{{entityName}}Schema.partial();
+
+function runZodSchema(schema: typeof create{{entityName}}Schema) {
+  return (request{{#if isTypeScript}}: Request{{/if}}, response{{#if isTypeScript}}: Response{{/if}}, next{{#if isTypeScript}}: NextFunction{{/if}}) => {
+    const parsed = schema.safeParse(request.body);
+
+    if (!parsed.success) {
+      response.status(400).json({
+        message: "Validation failed",
+        errors: parsed.error.flatten()
+      });
+      return;
+    }
+
+    request.body = parsed.data;
+    next();
+  };
+}
+{{/if}}
+
+{{#if usesExpressValidator}}
+function handleValidationErrors(request{{#if isTypeScript}}: Request{{/if}}, response{{#if isTypeScript}}: Response{{/if}}, next{{#if isTypeScript}}: NextFunction{{/if}}) {
+  const result = validationResult(request);
+
+  if (!result.isEmpty()) {
+    response.status(400).json({
+      message: "Validation failed",
+      errors: result.array()
+    });
+    return;
+  }
+
+  next();
+}
+{{/if}}
+
+export const create{{entityName}}Validators = [
+{{#if usesZod}}
+  runZodSchema(create{{entityName}}Schema){{#if usesExpressValidator}},{{/if}}
+{{/if}}
+{{#if usesExpressValidator}}
+{{#each fields}}
+  {{{createExpressValidatorRule}}},
+{{/each}}
+  handleValidationErrors
+{{/if}}
+];
+
+export const update{{entityName}}Validators = [
+{{#if usesZod}}
+  runZodSchema(update{{entityName}}Schema){{#if usesExpressValidator}},{{/if}}
+{{/if}}
+{{#if usesExpressValidator}}
+{{#each fields}}
+  {{{updateExpressValidatorRule}}},
+{{/each}}
+  handleValidationErrors
+{{/if}}
+];

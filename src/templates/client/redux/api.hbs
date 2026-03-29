@@ -1,0 +1,146 @@
+import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
+{{#if isTypeScript}}
+import type { {{entityName}}, {{formValuesName}} } from "../types/{{names.singularKebab}}.types";
+{{/if}}
+
+const BASE_URL = "{{apiBasePath}}";
+
+async function request(path{{#if isTypeScript}}: string{{/if}}, init{{#if isTypeScript}}: RequestInit = {}{{/if}}) {
+  const response = await fetch(`${BASE_URL}${path}`, {
+    headers: {
+      "Content-Type": "application/json",
+      ...(init.headers ?? {})
+    },
+    ...init
+  });
+
+  if (!response.ok) {
+    throw new Error(`Request failed with status ${response.status}`);
+  }
+
+  if (response.status === 204) {
+    return null;
+  }
+
+  return response.json();
+}
+
+export async function list{{names.pluralPascal}}(){{#if isTypeScript}}: Promise<{{entityName}}[]>{{/if}} {
+  return request("/");
+}
+
+export async function get{{entityName}}(id{{#if isTypeScript}}: string{{/if}}){{#if isTypeScript}}: Promise<{{entityName}}>{{/if}} {
+  return request(`/${id}`);
+}
+
+export async function create{{entityName}}(
+  payload{{#if isTypeScript}}: {{formValuesName}}{{/if}}
+){{#if isTypeScript}}: Promise<{{entityName}}>{{/if}} {
+  return request("/", {
+    method: "POST",
+    body: JSON.stringify(payload)
+  });
+}
+
+export async function update{{entityName}}(
+  id{{#if isTypeScript}}: string{{/if}},
+  payload{{#if isTypeScript}}: {{formValuesName}}{{/if}}
+){{#if isTypeScript}}: Promise<{{entityName}}>{{/if}} {
+  return request(`/${id}`, {
+    method: "PUT",
+    body: JSON.stringify(payload)
+  });
+}
+
+export async function delete{{entityName}}(id{{#if isTypeScript}}: string{{/if}}){{#if isTypeScript}}: Promise<void>{{/if}} {
+  await request(`/${id}`, {
+    method: "DELETE"
+  });
+}
+
+{{#if isTypeScript}}
+export interface {{entityName}}State {
+  items: {{entityName}}[];
+  item: {{entityName}} | null;
+  isLoading: boolean;
+  error: string | null;
+}
+{{/if}}
+
+export const {{names.singularCamel}}StoreKey = "{{storeKey}}";
+
+export const initial{{entityName}}State{{#if isTypeScript}}: {{entityName}}State{{/if}} = {
+  items: [],
+  item: null,
+  isLoading: false,
+  error: null
+};
+
+export const fetch{{names.pluralPascal}}Thunk = createAsyncThunk(
+  "{{storeKey}}/fetchAll",
+  async () => list{{names.pluralPascal}}()
+);
+
+export const fetch{{entityName}}Thunk = createAsyncThunk(
+  "{{storeKey}}/fetchOne",
+  async (id{{#if isTypeScript}}: string{{/if}}) => get{{entityName}}(id)
+);
+
+export const create{{entityName}}Thunk = createAsyncThunk(
+  "{{storeKey}}/create",
+  async (payload{{#if isTypeScript}}: {{formValuesName}}{{/if}}) => create{{entityName}}(payload)
+);
+
+export const update{{entityName}}Thunk = createAsyncThunk(
+  "{{storeKey}}/update",
+  async (params{{#if isTypeScript}}: { id: string; payload: {{formValuesName}} }{{/if}}) =>
+    update{{entityName}}(params.id, params.payload)
+);
+
+export const delete{{entityName}}Thunk = createAsyncThunk(
+  "{{storeKey}}/delete",
+  async (id{{#if isTypeScript}}: string{{/if}}) => {
+    await delete{{entityName}}(id);
+    return id;
+  }
+);
+
+const {{names.singularCamel}}Slice = createSlice({
+  name: "{{storeKey}}",
+  initialState: initial{{entityName}}State,
+  reducers: {},
+  extraReducers: (builder) => {
+    builder
+      .addCase(fetch{{names.pluralPascal}}Thunk.pending, (state) => {
+        state.isLoading = true;
+        state.error = null;
+      })
+      .addCase(fetch{{names.pluralPascal}}Thunk.fulfilled, (state, action) => {
+        state.isLoading = false;
+        state.items = action.payload;
+      })
+      .addCase(fetch{{names.pluralPascal}}Thunk.rejected, (state, action) => {
+        state.isLoading = false;
+        state.error = action.error.message ?? "Unknown error";
+      })
+      .addCase(fetch{{entityName}}Thunk.fulfilled, (state, action) => {
+        state.item = action.payload;
+      })
+      .addCase(create{{entityName}}Thunk.fulfilled, (state, action) => {
+        state.items = [action.payload, ...state.items];
+        state.item = action.payload;
+      })
+      .addCase(update{{entityName}}Thunk.fulfilled, (state, action) => {
+        state.items = state.items.map((entry) =>
+          entry._id === action.payload._id ? action.payload : entry
+        );
+        state.item = action.payload;
+      })
+      .addCase(delete{{entityName}}Thunk.fulfilled, (state, action) => {
+        state.items = state.items.filter((entry) => entry._id !== action.payload);
+        state.item = state.item?._id === action.payload ? null : state.item;
+      });
+  }
+});
+
+export const {{names.singularCamel}}Reducer = {{names.singularCamel}}Slice.reducer;

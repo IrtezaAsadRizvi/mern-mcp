@@ -1,0 +1,13 @@
+{
+  "structure": "monorepo",
+  "language": "typescript",
+  "reactStack": "react-query",
+  "validation": "zod",
+  "auth": "none",
+  "paths": {
+    "serverRoot": "./server",
+    "clientRoot": "./client",
+    "serverEntry": "index.ts",
+    "clientRouter": "router.tsx"
+  }
+}

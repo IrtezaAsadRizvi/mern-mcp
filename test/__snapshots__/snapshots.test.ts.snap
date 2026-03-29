@@ -1,0 +1,1721 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`scaffold snapshots > matches the JavaScript plain-react output plan 1`] = `
+{
+  "artifacts": [
+    {
+      "action": "create",
+      "content": "import { Schema, model } from "mongoose";
+
+const inventoryItemSchema = new Schema(
+  {
+    name: { type: String, required: true },
+    quantity: { type: Number, required: true },
+  },
+  {
+    timestamps: true,
+  },
+);
+
+export const InventoryItemModel = model("InventoryItem", inventoryItemSchema);
+
+export default InventoryItemModel;
+",
+      "kind": "model",
+      "path": "server/models/inventory-item.model.js",
+      "reason": null,
+    },
+    {
+      "action": "create",
+      "content": "import { InventoryItemModel } from "../models/inventory-item.model";
+
+export async function listInventoryItems() {
+  return InventoryItemModel.find().lean();
+}
+
+export async function getInventoryItemById(id) {
+  return InventoryItemModel.findById(id).lean();
+}
+
+export async function createInventoryItem(payload) {
+  const created = await InventoryItemModel.create(payload);
+  return created.toObject();
+}
+
+export async function updateInventoryItem(id, payload) {
+  return InventoryItemModel.findByIdAndUpdate(id, payload, {
+    new: true,
+    runValidators: true,
+  }).lean();
+}
+
+export async function deleteInventoryItem(id) {
+  return InventoryItemModel.findByIdAndDelete(id).lean();
+}
+",
+      "kind": "service",
+      "path": "server/services/inventory-item.service.js",
+      "reason": null,
+    },
+    {
+      "action": "create",
+      "content": "import * as inventoryItemService from "../services/inventory-item.service";
+
+export async function listInventoryItems(_request, response) {
+  const items = await inventoryItemService.listInventoryItems();
+  response.json(items);
+}
+
+export async function getInventoryItem(request, response) {
+  const item = await inventoryItemService.getInventoryItemById(request.params.id);
+
+  if (!item) {
+    response.status(404).json({
+      message: "InventoryItem not found",
+    });
+    return;
+  }
+
+  response.json(item);
+}
+
+export async function createInventoryItem(request, response) {
+  const created = await inventoryItemService.createInventoryItem(request.body);
+  response.status(201).json(created);
+}
+
+export async function updateInventoryItem(request, response) {
+  const updated = await inventoryItemService.updateInventoryItem(request.params.id, request.body);
+
+  if (!updated) {
+    response.status(404).json({
+      message: "InventoryItem not found",
+    });
+    return;
+  }
+
+  response.json(updated);
+}
+
+export async function deleteInventoryItem(request, response) {
+  const deleted = await inventoryItemService.deleteInventoryItem(request.params.id);
+
+  if (!deleted) {
+    response.status(404).json({
+      message: "InventoryItem not found",
+    });
+    return;
+  }
+
+  response.status(204).send();
+}
+",
+      "kind": "controller",
+      "path": "server/controllers/inventory-item.controller.js",
+      "reason": null,
+    },
+    {
+      "action": "create",
+      "content": "import { Router } from "express";
+
+import {
+  createInventoryItem,
+  deleteInventoryItem,
+  getInventoryItem,
+  listInventoryItems,
+  updateInventoryItem,
+} from "../controllers/inventory-item.controller";
+import {
+  createInventoryItemValidators,
+  updateInventoryItemValidators,
+} from "../validators/inventory-item.validator";
+
+const router = Router();
+
+router.get("/", listInventoryItems);
+router.get("/:id", getInventoryItem);
+router.post("/", ...createInventoryItemValidators, createInventoryItem);
+router.put("/:id", ...updateInventoryItemValidators, updateInventoryItem);
+router.delete("/:id", deleteInventoryItem);
+
+export default router;
+",
+      "kind": "route",
+      "path": "server/routes/inventory-item.routes.js",
+      "reason": null,
+    },
+    {
+      "action": "create",
+      "content": "export const inventoryItemFieldConfig = [
+  {
+    key: "name",
+    label: "Name",
+    required: true,
+    widget: "text",
+    inputType: "text",
+    isArray: false,
+    options: undefined,
+  },
+  {
+    key: "quantity",
+    label: "Quantity",
+    required: true,
+    widget: "number",
+    inputType: "number",
+    isArray: false,
+    options: undefined,
+  },
+];
+
+export const inventoryItemInitialValues = {
+  name: "",
+  quantity: 0,
+};
+",
+      "kind": "types",
+      "path": "client/types/inventory-item.types.js",
+      "reason": null,
+    },
+    {
+      "action": "create",
+      "content": "const BASE_URL = "/api/inventory-items";
+
+async function request(path, init) {
+  const response = await fetch(\`\${BASE_URL}\${path}\`, {
+    headers: {
+      "Content-Type": "application/json",
+      ...(init.headers ?? {}),
+    },
+    ...init,
+  });
+
+  if (!response.ok) {
+    throw new Error(\`Request failed with status \${response.status}\`);
+  }
+
+  if (response.status === 204) {
+    return null;
+  }
+
+  return response.json();
+}
+
+export async function listInventoryItems() {
+  return request("/");
+}
+
+export async function getInventoryItem(id) {
+  return request(\`/\${id}\`);
+}
+
+export async function createInventoryItem(payload) {
+  return request("/", {
+    method: "POST",
+    body: JSON.stringify(payload),
+  });
+}
+
+export async function updateInventoryItem(id, payload) {
+  return request(\`/\${id}\`, {
+    method: "PUT",
+    body: JSON.stringify(payload),
+  });
+}
+
+export async function deleteInventoryItem(id) {
+  await request(\`/\${id}\`, {
+    method: "DELETE",
+  });
+}
+",
+      "kind": "api",
+      "path": "client/api/inventory-item.api.js",
+      "reason": null,
+    },
+    {
+      "action": "create",
+      "content": "import React, { useEffect, useState } from "react";
+import {
+  createInventoryItem,
+  deleteInventoryItem,
+  getInventoryItem,
+  listInventoryItems,
+  updateInventoryItem,
+} from "../api/inventory-item.api";
+
+export function useInventoryItem() {
+  const [items, setItems] = useState([]);
+  const [item, setItem] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState(null);
+
+  const refresh = async () => {
+    setIsLoading(true);
+    setError(null);
+
+    try {
+      const nextItems = await listInventoryItems();
+      setItems(nextItems);
+      return nextItems;
+    } catch (nextError) {
+      setError(nextError instanceof Error ? nextError.message : "Unknown error");
+      throw nextError;
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    void refresh();
+  }, []);
+
+  const loadItem = async (id) => {
+    setIsLoading(true);
+    setError(null);
+
+    try {
+      const nextItem = await getInventoryItem(id);
+      setItem(nextItem);
+      return nextItem;
+    } catch (nextError) {
+      setError(nextError instanceof Error ? nextError.message : "Unknown error");
+      throw nextError;
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const createItem = async (payload) => {
+    setIsLoading(true);
+    setError(null);
+
+    try {
+      const created = await createInventoryItem(payload);
+      setItems((current) => [created, ...current]);
+      setItem(created);
+      return created;
+    } catch (nextError) {
+      setError(nextError instanceof Error ? nextError.message : "Unknown error");
+      throw nextError;
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const updateItem = async (id, payload) => {
+    setIsLoading(true);
+    setError(null);
+
+    try {
+      const updated = await updateInventoryItem(id, payload);
+      setItems((current) => current.map((entry) => (entry._id === updated._id ? updated : entry)));
+      setItem(updated);
+      return updated;
+    } catch (nextError) {
+      setError(nextError instanceof Error ? nextError.message : "Unknown error");
+      throw nextError;
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const removeItem = async (id) => {
+    setIsLoading(true);
+    setError(null);
+
+    try {
+      await deleteInventoryItem(id);
+      setItems((current) => current.filter((entry) => entry._id !== id));
+      setItem((current) => (current?._id === id ? null : current));
+    } catch (nextError) {
+      setError(nextError instanceof Error ? nextError.message : "Unknown error");
+      throw nextError;
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  return {
+    items,
+    item,
+    isLoading,
+    error,
+    refresh,
+    loadItem,
+    createItem,
+    updateItem,
+    deleteItem: removeItem,
+  };
+}
+
+export default useInventoryItem;
+",
+      "kind": "hook",
+      "path": "client/hooks/useInventoryItem.js",
+      "reason": null,
+    },
+    {
+      "action": "create",
+      "content": "import React, { useEffect, useState } from "react";
+import {
+  inventoryItemFieldConfig,
+  inventoryItemInitialValues,
+} from "../types/inventory-item.types";
+import { useInventoryItem } from "../hooks/useInventoryItem";
+
+function getFieldValue(value) {
+  if (Array.isArray(value)) {
+    return value.join(", ");
+  }
+
+  return value ?? "";
+}
+
+export function InventoryItemForm({ value, onSuccess }) {
+  const { createItem, updateItem, isLoading, error } = useInventoryItem();
+  const [formValues, setFormValues] = useState(() => ({
+    ...inventoryItemInitialValues,
+    ...(value ?? {}),
+  }));
+
+  useEffect(() => {
+    setFormValues({
+      ...inventoryItemInitialValues,
+      ...(value ?? {}),
+    });
+  }, [value]);
+
+  const handleFieldChange = (fieldKey, nextValue) => {
+    setFormValues((current) => ({
+      ...current,
+      [fieldKey]: nextValue,
+    }));
+  };
+
+  const handleSubmit = async (event) => {
+    event.preventDefault();
+
+    const saved = value?._id
+      ? await updateItem(value._id, formValues)
+      : await createItem(formValues);
+
+    if (!value?._id) {
+      setFormValues({ ...inventoryItemInitialValues });
+    }
+
+    onSuccess?.(saved);
+  };
+
+  return (
+    <form onSubmit={handleSubmit}>
+      <h2>{value?._id ? "Edit InventoryItem" : "Create InventoryItem"}</h2>
+      {error ? <p role="alert">{String(error)}</p> : null}
+      {inventoryItemFieldConfig.map((field) => {
+        const currentValue = formValues[field.key];
+
+        if (field.widget === "textarea") {
+          return (
+            <label key={field.key}>
+              <span>{field.label}</span>
+              <textarea
+                value={String(getFieldValue(currentValue))}
+                onChange={(event) => handleFieldChange(field.key, event.target.value)}
+              />
+            </label>
+          );
+        }
+
+        if (field.widget === "select") {
+          return (
+            <label key={field.key}>
+              <span>{field.label}</span>
+              <select
+                value={String(currentValue ?? "")}
+                onChange={(event) => handleFieldChange(field.key, event.target.value)}
+              >
+                <option value="">Select {field.label}</option>
+                {(field.options ?? []).map((option) => (
+                  <option key={option} value={option}>
+                    {option}
+                  </option>
+                ))}
+              </select>
+            </label>
+          );
+        }
+
+        if (field.widget === "multiselect") {
+          return (
+            <label key={field.key}>
+              <span>{field.label}</span>
+              <select
+                multiple
+                value={Array.isArray(currentValue) ? currentValue.map(String) : []}
+                onChange={(event) =>
+                  handleFieldChange(
+                    field.key,
+                    Array.from(event.target.selectedOptions).map((option) => option.value),
+                  )
+                }
+              >
+                {(field.options ?? []).map((option) => (
+                  <option key={option} value={option}>
+                    {option}
+                  </option>
+                ))}
+              </select>
+            </label>
+          );
+        }
+
+        if (field.widget === "checkbox") {
+          return (
+            <label key={field.key}>
+              <input
+                checked={Boolean(currentValue)}
+                type="checkbox"
+                onChange={(event) => handleFieldChange(field.key, event.target.checked)}
+              />
+              <span>{field.label}</span>
+            </label>
+          );
+        }
+
+        return (
+          <label key={field.key}>
+            <span>{field.label}</span>
+            <input
+              type={field.inputType}
+              value={String(getFieldValue(currentValue))}
+              onChange={(event) =>
+                handleFieldChange(
+                  field.key,
+                  field.widget === "tags"
+                    ? event.target.value
+                        .split(",")
+                        .map((part) => part.trim())
+                        .filter(Boolean)
+                    : field.inputType === "number"
+                      ? Number(event.target.value)
+                      : event.target.value,
+                )
+              }
+            />
+          </label>
+        );
+      })}
+      <button disabled={isLoading} type="submit">
+        {isLoading ? "Saving..." : "Save InventoryItem"}
+      </button>
+    </form>
+  );
+}
+
+export default InventoryItemForm;
+",
+      "kind": "form",
+      "path": "client/components/InventoryItemForm.jsx",
+      "reason": null,
+    },
+    {
+      "action": "create",
+      "content": "import React from "react";
+import { inventoryItemFieldConfig } from "../types/inventory-item.types";
+import { useInventoryItem } from "../hooks/useInventoryItem";
+
+function renderCellValue(value) {
+  if (Array.isArray(value)) {
+    return value.join(", ");
+  }
+
+  if (typeof value === "boolean") {
+    return value ? "Yes" : "No";
+  }
+
+  return value ? String(value) : "—";
+}
+
+export function InventoryItemList({ onSelect }) {
+  const { items, deleteItem, isLoading, error } = useInventoryItem();
+
+  if (isLoading) {
+    return <p>Loading inventoryItems...</p>;
+  }
+
+  return (
+    <section>
+      <h2>InventoryItems</h2>
+      {error ? <p role="alert">{String(error)}</p> : null}
+      {items.length === 0 ? <p>No inventoryItems found.</p> : null}
+      {items.length > 0 ? (
+        <table>
+          <thead>
+            <tr>
+              {inventoryItemFieldConfig.map((field) => (
+                <th key={field.key}>{field.label}</th>
+              ))}
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {items.map((item) => (
+              <tr key={item._id ?? JSON.stringify(item)}>
+                {inventoryItemFieldConfig.map((field) => (
+                  <td key={field.key}>{renderCellValue(item[field.key])}</td>
+                ))}
+                <td>
+                  <button type="button" onClick={() => onSelect?.(item)}>
+                    View
+                  </button>
+                  {item._id ? (
+                    <button type="button" onClick={() => deleteItem(item._id)}>
+                      Delete
+                    </button>
+                  ) : null}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      ) : null}
+    </section>
+  );
+}
+
+export default InventoryItemList;
+",
+      "kind": "list",
+      "path": "client/components/InventoryItemList.jsx",
+      "reason": null,
+    },
+    {
+      "action": "create",
+      "content": "import React, { useEffect, useState } from "react";
+import { inventoryItemFieldConfig } from "../types/inventory-item.types";
+import { useInventoryItem } from "../hooks/useInventoryItem";
+
+function renderFieldValue(value) {
+  if (Array.isArray(value)) {
+    return value.join(", ");
+  }
+
+  if (typeof value === "boolean") {
+    return value ? "Yes" : "No";
+  }
+
+  return value ? String(value) : "—";
+}
+
+export function InventoryItemDetail({ id, item, onEdit }) {
+  const { loadItem, isLoading, error } = useInventoryItem();
+  const [resolvedItem, setResolvedItem] = useState(item ?? null);
+
+  useEffect(() => {
+    setResolvedItem(item ?? null);
+  }, [item]);
+
+  useEffect(() => {
+    if (!id) {
+      return;
+    }
+
+    void loadItem(id).then((nextItem) => {
+      setResolvedItem(nextItem);
+    });
+  }, [id]);
+
+  if (!resolvedItem && isLoading) {
+    return <p>Loading InventoryItem...</p>;
+  }
+
+  if (!resolvedItem) {
+    return <p>No InventoryItem selected.</p>;
+  }
+
+  return (
+    <section>
+      <h2>InventoryItem details</h2>
+      {error ? <p role="alert">{String(error)}</p> : null}
+      <dl>
+        {inventoryItemFieldConfig.map((field) => (
+          <React.Fragment key={field.key}>
+            <dt>{field.label}</dt>
+            <dd>{renderFieldValue(resolvedItem[field.key])}</dd>
+          </React.Fragment>
+        ))}
+      </dl>
+      <button type="button" onClick={() => onEdit?.(resolvedItem)}>
+        Edit
+      </button>
+    </section>
+  );
+}
+
+export default InventoryItemDetail;
+",
+      "kind": "detail",
+      "path": "client/components/InventoryItemDetail.jsx",
+      "reason": null,
+    },
+    {
+      "action": "create",
+      "content": "import { body, validationResult } from "express-validator";
+
+function handleValidationErrors(request, response, next) {
+  const result = validationResult(request);
+
+  if (!result.isEmpty()) {
+    response.status(400).json({
+      message: "Validation failed",
+      errors: result.array(),
+    });
+    return;
+  }
+
+  next();
+}
+
+export const createInventoryItemValidators = [
+  body("name").isString(),
+  body("quantity").isNumeric(),
+  handleValidationErrors,
+];
+
+export const updateInventoryItemValidators = [
+  body("name").optional().isString(),
+  body("quantity").optional().isNumeric(),
+  handleValidationErrors,
+];
+",
+      "kind": "validator",
+      "path": "server/validators/inventory-item.validator.js",
+      "reason": null,
+    },
+    {
+      "action": "update",
+      "content": "import inventoryItemRoutes from "./routes/inventory-item.routes";
+import express from "express";
+
+const app = express();
+
+app.use(express.json());
+
+export default app;
+app.use("/api/inventory-items", inventoryItemRoutes);
+",
+      "kind": "integration",
+      "path": "server/app.js",
+      "reason": null,
+    },
+    {
+      "action": "update",
+      "content": "import { InventoryItemDetail } from "./components/InventoryItemDetail";
+import { InventoryItemForm } from "./components/InventoryItemForm";
+import { InventoryItemList } from "./components/InventoryItemList";
+import { createBrowserRouter } from "react-router-dom";
+
+export const router = createBrowserRouter([{
+  path: "/inventory-items",
+  element: <InventoryItemList />
+}, {
+  path: "/inventory-items/new",
+  element: <InventoryItemForm />
+}, {
+  path: "/inventory-items/:id",
+  element: <InventoryItemDetail />
+}]);
+",
+      "kind": "integration",
+      "path": "client/router.jsx",
+      "reason": null,
+    },
+  ],
+  "conflicts": [],
+  "integrationActions": [
+    {
+      "applied": false,
+      "description": "Ensure target project dependencies include: express, express-validator, mongoose",
+      "kind": "manual",
+      "path": undefined,
+    },
+    {
+      "applied": true,
+      "description": "Mount InventoryItem routes in server entry",
+      "kind": "patch",
+      "path": "<absolute-path>",
+      "relativePath": "server/app.js",
+    },
+    {
+      "applied": true,
+      "description": "Register InventoryItem routes in client router",
+      "kind": "patch",
+      "path": "<absolute-path>",
+      "relativePath": "client/router.jsx",
+    },
+  ],
+  "integrationSummary": [
+    "Ensure target project dependencies include: express, express-validator, mongoose",
+    "Mount InventoryItem routes in server entry (server/app.js)",
+    "Register InventoryItem routes in client router (client/router.jsx)",
+  ],
+  "mode": "preview",
+  "normalizedResource": {
+    "description": null,
+    "fields": [
+      {
+        "enumValues": [],
+        "isArray": false,
+        "key": "name",
+        "name": "name",
+        "ref": null,
+        "required": true,
+        "type": "string",
+      },
+      {
+        "enumValues": [],
+        "isArray": false,
+        "key": "quantity",
+        "name": "quantity",
+        "ref": null,
+        "required": true,
+        "type": "number",
+      },
+    ],
+    "resourceName": "InventoryItem",
+  },
+  "previewHash": "<previewHash>",
+  "resourceName": "InventoryItem",
+  "summary": "InventoryItem: 11 generated artifact(s), no conflicts.",
+  "writeResult": null,
+}
+`;
+
+exports[`scaffold snapshots > matches the Redux + auth output plan 1`] = `
+{
+  "artifacts": [
+    {
+      "action": "create",
+      "content": "import { Schema, model, type InferSchemaType } from "mongoose";
+
+const orderSchema = new Schema(
+  {
+    status: { type: String, required: true, enum: ["draft", "placed", "shipped"] },
+    customer: { type: Schema.Types.ObjectId, required: true, ref: "User" },
+  },
+  {
+    timestamps: true,
+  },
+);
+
+export type OrderDocument = InferSchemaType<typeof orderSchema>;
+
+export const OrderModel = model("Order", orderSchema);
+
+export default OrderModel;
+",
+      "kind": "model",
+      "path": "server/src/models/order.model.ts",
+      "reason": null,
+    },
+    {
+      "action": "create",
+      "content": "import { OrderModel, type OrderDocument } from "../models/order.model";
+
+export type OrderPayload = Partial<OrderDocument>;
+
+export async function listOrders() {
+  return OrderModel.find().lean();
+}
+
+export async function getOrderById(id: string) {
+  return OrderModel.findById(id).lean();
+}
+
+export async function createOrder(payload: OrderPayload) {
+  const created = await OrderModel.create(payload);
+  return created.toObject();
+}
+
+export async function updateOrder(id: string, payload: OrderPayload) {
+  return OrderModel.findByIdAndUpdate(id, payload, {
+    new: true,
+    runValidators: true,
+  }).lean();
+}
+
+export async function deleteOrder(id: string) {
+  return OrderModel.findByIdAndDelete(id).lean();
+}
+",
+      "kind": "service",
+      "path": "server/src/services/order.service.ts",
+      "reason": null,
+    },
+    {
+      "action": "create",
+      "content": "import type { Request, Response } from "express";
+
+import * as orderService from "../services/order.service";
+
+export async function listOrders(_request: Request, response: Response) {
+  const items = await orderService.listOrders();
+  response.json(items);
+}
+
+export async function getOrder(request: Request, response: Response) {
+  const item = await orderService.getOrderById(request.params.id);
+
+  if (!item) {
+    response.status(404).json({
+      message: "Order not found",
+    });
+    return;
+  }
+
+  response.json(item);
+}
+
+export async function createOrder(request: Request, response: Response) {
+  const created = await orderService.createOrder(request.body);
+  response.status(201).json(created);
+}
+
+export async function updateOrder(request: Request, response: Response) {
+  const updated = await orderService.updateOrder(request.params.id, request.body);
+
+  if (!updated) {
+    response.status(404).json({
+      message: "Order not found",
+    });
+    return;
+  }
+
+  response.json(updated);
+}
+
+export async function deleteOrder(request: Request, response: Response) {
+  const deleted = await orderService.deleteOrder(request.params.id);
+
+  if (!deleted) {
+    response.status(404).json({
+      message: "Order not found",
+    });
+    return;
+  }
+
+  response.status(204).send();
+}
+",
+      "kind": "controller",
+      "path": "server/src/controllers/order.controller.ts",
+      "reason": null,
+    },
+    {
+      "action": "create",
+      "content": "import { Router } from "express";
+
+import {
+  createOrder,
+  deleteOrder,
+  getOrder,
+  listOrders,
+  updateOrder,
+} from "../controllers/order.controller";
+import { createOrderValidators, updateOrderValidators } from "../validators/order.validator";
+import { authMiddleware } from "../middleware/auth.middleware";
+
+const router = Router();
+
+router.use(authMiddleware);
+
+router.get("/", listOrders);
+router.get("/:id", getOrder);
+router.post("/", ...createOrderValidators, createOrder);
+router.put("/:id", ...updateOrderValidators, updateOrder);
+router.delete("/:id", deleteOrder);
+
+export default router;
+",
+      "kind": "route",
+      "path": "server/src/routes/order.routes.ts",
+      "reason": null,
+    },
+    {
+      "action": "create",
+      "content": "export interface Order {
+  _id?: string;
+  status: "draft" | "placed" | "shipped";
+  customer: string;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+export interface OrderFormValues {
+  status: "draft" | "placed" | "shipped";
+  customer: string;
+}
+
+export interface OrderFieldConfig {
+  key: keyof OrderFormValues;
+  label: string;
+  required: boolean;
+  widget: string;
+  inputType: string;
+  isArray: boolean;
+  options?: string[];
+}
+
+export const orderFieldConfig: OrderFieldConfig[] = [
+  {
+    key: "status",
+    label: "Status",
+    required: true,
+    widget: "select",
+    inputType: "text",
+    isArray: false,
+    options: ["draft", "placed", "shipped"],
+  },
+  {
+    key: "customer",
+    label: "Customer",
+    required: true,
+    widget: "text",
+    inputType: "text",
+    isArray: false,
+    options: undefined,
+  },
+];
+
+export const orderInitialValues: OrderFormValues = {
+  status: "draft",
+  customer: "",
+};
+",
+      "kind": "types",
+      "path": "client/src/types/order.types.ts",
+      "reason": null,
+    },
+    {
+      "action": "create",
+      "content": "import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
+import type { Order, OrderFormValues } from "../types/order.types";
+
+const BASE_URL = "/api/orders";
+
+async function request(path: string, init: RequestInit = {}) {
+  const response = await fetch(\`\${BASE_URL}\${path}\`, {
+    headers: {
+      "Content-Type": "application/json",
+      ...(init.headers ?? {}),
+    },
+    ...init,
+  });
+
+  if (!response.ok) {
+    throw new Error(\`Request failed with status \${response.status}\`);
+  }
+
+  if (response.status === 204) {
+    return null;
+  }
+
+  return response.json();
+}
+
+export async function listOrders(): Promise<Order[]> {
+  return request("/");
+}
+
+export async function getOrder(id: string): Promise<Order> {
+  return request(\`/\${id}\`);
+}
+
+export async function createOrder(payload: OrderFormValues): Promise<Order> {
+  return request("/", {
+    method: "POST",
+    body: JSON.stringify(payload),
+  });
+}
+
+export async function updateOrder(id: string, payload: OrderFormValues): Promise<Order> {
+  return request(\`/\${id}\`, {
+    method: "PUT",
+    body: JSON.stringify(payload),
+  });
+}
+
+export async function deleteOrder(id: string): Promise<void> {
+  await request(\`/\${id}\`, {
+    method: "DELETE",
+  });
+}
+
+export interface OrderState {
+  items: Order[];
+  item: Order | null;
+  isLoading: boolean;
+  error: string | null;
+}
+
+export const orderStoreKey = "orders";
+
+export const initialOrderState: OrderState = {
+  items: [],
+  item: null,
+  isLoading: false,
+  error: null,
+};
+
+export const fetchOrdersThunk = createAsyncThunk("orders/fetchAll", async () => listOrders());
+
+export const fetchOrderThunk = createAsyncThunk("orders/fetchOne", async (id: string) =>
+  getOrder(id),
+);
+
+export const createOrderThunk = createAsyncThunk(
+  "orders/create",
+  async (payload: OrderFormValues) => createOrder(payload),
+);
+
+export const updateOrderThunk = createAsyncThunk(
+  "orders/update",
+  async (params: { id: string; payload: OrderFormValues }) =>
+    updateOrder(params.id, params.payload),
+);
+
+export const deleteOrderThunk = createAsyncThunk("orders/delete", async (id: string) => {
+  await deleteOrder(id);
+  return id;
+});
+
+const orderSlice = createSlice({
+  name: "orders",
+  initialState: initialOrderState,
+  reducers: {},
+  extraReducers: (builder) => {
+    builder
+      .addCase(fetchOrdersThunk.pending, (state) => {
+        state.isLoading = true;
+        state.error = null;
+      })
+      .addCase(fetchOrdersThunk.fulfilled, (state, action) => {
+        state.isLoading = false;
+        state.items = action.payload;
+      })
+      .addCase(fetchOrdersThunk.rejected, (state, action) => {
+        state.isLoading = false;
+        state.error = action.error.message ?? "Unknown error";
+      })
+      .addCase(fetchOrderThunk.fulfilled, (state, action) => {
+        state.item = action.payload;
+      })
+      .addCase(createOrderThunk.fulfilled, (state, action) => {
+        state.items = [action.payload, ...state.items];
+        state.item = action.payload;
+      })
+      .addCase(updateOrderThunk.fulfilled, (state, action) => {
+        state.items = state.items.map((entry) =>
+          entry._id === action.payload._id ? action.payload : entry,
+        );
+        state.item = action.payload;
+      })
+      .addCase(deleteOrderThunk.fulfilled, (state, action) => {
+        state.items = state.items.filter((entry) => entry._id !== action.payload);
+        state.item = state.item?._id === action.payload ? null : state.item;
+      });
+  },
+});
+
+export const orderReducer = orderSlice.reducer;
+",
+      "kind": "api",
+      "path": "client/src/api/order.api.ts",
+      "reason": null,
+    },
+    {
+      "action": "create",
+      "content": "import React, { useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import type { OrderFormValues } from "../types/order.types";
+import {
+  createOrderThunk,
+  deleteOrderThunk,
+  fetchOrderThunk,
+  fetchOrdersThunk,
+  initialOrderState,
+  updateOrderThunk,
+  orderStoreKey,
+} from "../api/order.api";
+
+export function useOrder() {
+  const dispatch = useDispatch<any>();
+  const state = useSelector((rootState: Record<string, typeof initialOrderState>) => {
+    return rootState[orderStoreKey] ?? initialOrderState;
+  });
+
+  useEffect(() => {
+    void dispatch(fetchOrdersThunk());
+  }, [dispatch]);
+
+  return {
+    items: state.items,
+    item: state.item,
+    isLoading: state.isLoading,
+    error: state.error,
+    refresh: () => dispatch(fetchOrdersThunk()).unwrap(),
+    loadItem: (id: string) => dispatch(fetchOrderThunk(id)).unwrap(),
+    createItem: (payload: OrderFormValues) => dispatch(createOrderThunk(payload)).unwrap(),
+    updateItem: (id: string, payload: OrderFormValues) =>
+      dispatch(updateOrderThunk({ id, payload })).unwrap(),
+    deleteItem: (id: string) => dispatch(deleteOrderThunk(id)).unwrap(),
+  };
+}
+
+export default useOrder;
+",
+      "kind": "hook",
+      "path": "client/src/hooks/useOrder.ts",
+      "reason": null,
+    },
+    {
+      "action": "create",
+      "content": "import React, { useEffect, useState } from "react";
+import type { Order, OrderFormValues } from "../types/order.types";
+import { orderFieldConfig, orderInitialValues } from "../types/order.types";
+import { useOrder } from "../hooks/useOrder";
+
+export interface OrderFormProps {
+  value?: Order | null;
+  onSuccess?: (item: Order) => void;
+}
+
+function getFieldValue(value: unknown) {
+  if (Array.isArray(value)) {
+    return value.join(", ");
+  }
+
+  return value ?? "";
+}
+
+export function OrderForm({ value, onSuccess }: OrderFormProps) {
+  const { createItem, updateItem, isLoading, error } = useOrder();
+  const [formValues, setFormValues] = useState<OrderFormValues>(() => ({
+    ...orderInitialValues,
+    ...(value ?? {}),
+  }));
+
+  useEffect(() => {
+    setFormValues({
+      ...orderInitialValues,
+      ...(value ?? {}),
+    });
+  }, [value]);
+
+  const handleFieldChange = (fieldKey: string, nextValue: unknown) => {
+    setFormValues((current) => ({
+      ...current,
+      [fieldKey]: nextValue,
+    }));
+  };
+
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+
+    const saved = value?._id
+      ? await updateItem(value._id, formValues)
+      : await createItem(formValues);
+
+    if (!value?._id) {
+      setFormValues({ ...orderInitialValues });
+    }
+
+    onSuccess?.(saved);
+  };
+
+  return (
+    <form onSubmit={handleSubmit}>
+      <h2>{value?._id ? "Edit Order" : "Create Order"}</h2>
+      {error ? <p role="alert">{String(error)}</p> : null}
+      {orderFieldConfig.map((field) => {
+        const currentValue = formValues[field.key];
+
+        if (field.widget === "textarea") {
+          return (
+            <label key={field.key}>
+              <span>{field.label}</span>
+              <textarea
+                value={String(getFieldValue(currentValue))}
+                onChange={(event) => handleFieldChange(field.key, event.target.value)}
+              />
+            </label>
+          );
+        }
+
+        if (field.widget === "select") {
+          return (
+            <label key={field.key}>
+              <span>{field.label}</span>
+              <select
+                value={String(currentValue ?? "")}
+                onChange={(event) => handleFieldChange(field.key, event.target.value)}
+              >
+                <option value="">Select {field.label}</option>
+                {(field.options ?? []).map((option) => (
+                  <option key={option} value={option}>
+                    {option}
+                  </option>
+                ))}
+              </select>
+            </label>
+          );
+        }
+
+        if (field.widget === "multiselect") {
+          return (
+            <label key={field.key}>
+              <span>{field.label}</span>
+              <select
+                multiple
+                value={Array.isArray(currentValue) ? currentValue.map(String) : []}
+                onChange={(event) =>
+                  handleFieldChange(
+                    field.key,
+                    Array.from(event.target.selectedOptions).map((option) => option.value),
+                  )
+                }
+              >
+                {(field.options ?? []).map((option) => (
+                  <option key={option} value={option}>
+                    {option}
+                  </option>
+                ))}
+              </select>
+            </label>
+          );
+        }
+
+        if (field.widget === "checkbox") {
+          return (
+            <label key={field.key}>
+              <input
+                checked={Boolean(currentValue)}
+                type="checkbox"
+                onChange={(event) => handleFieldChange(field.key, event.target.checked)}
+              />
+              <span>{field.label}</span>
+            </label>
+          );
+        }
+
+        return (
+          <label key={field.key}>
+            <span>{field.label}</span>
+            <input
+              type={field.inputType}
+              value={String(getFieldValue(currentValue))}
+              onChange={(event) =>
+                handleFieldChange(
+                  field.key,
+                  field.widget === "tags"
+                    ? event.target.value
+                        .split(",")
+                        .map((part) => part.trim())
+                        .filter(Boolean)
+                    : field.inputType === "number"
+                      ? Number(event.target.value)
+                      : event.target.value,
+                )
+              }
+            />
+          </label>
+        );
+      })}
+      <button disabled={isLoading} type="submit">
+        {isLoading ? "Saving..." : "Save Order"}
+      </button>
+    </form>
+  );
+}
+
+export default OrderForm;
+",
+      "kind": "form",
+      "path": "client/src/components/OrderForm.tsx",
+      "reason": null,
+    },
+    {
+      "action": "create",
+      "content": "import React from "react";
+import type { Order } from "../types/order.types";
+import { orderFieldConfig } from "../types/order.types";
+import { useOrder } from "../hooks/useOrder";
+
+function renderCellValue(value: unknown) {
+  if (Array.isArray(value)) {
+    return value.join(", ");
+  }
+
+  if (typeof value === "boolean") {
+    return value ? "Yes" : "No";
+  }
+
+  return value ? String(value) : "—";
+}
+
+export interface OrderListProps {
+  onSelect?: (item: Order) => void;
+}
+
+export function OrderList({ onSelect }: OrderListProps) {
+  const { items, deleteItem, isLoading, error } = useOrder();
+
+  if (isLoading) {
+    return <p>Loading orders...</p>;
+  }
+
+  return (
+    <section>
+      <h2>Orders</h2>
+      {error ? <p role="alert">{String(error)}</p> : null}
+      {items.length === 0 ? <p>No orders found.</p> : null}
+      {items.length > 0 ? (
+        <table>
+          <thead>
+            <tr>
+              {orderFieldConfig.map((field) => (
+                <th key={field.key}>{field.label}</th>
+              ))}
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {items.map((item) => (
+              <tr key={item._id ?? JSON.stringify(item)}>
+                {orderFieldConfig.map((field) => (
+                  <td key={field.key}>{renderCellValue(item[field.key])}</td>
+                ))}
+                <td>
+                  <button type="button" onClick={() => onSelect?.(item)}>
+                    View
+                  </button>
+                  {item._id ? (
+                    <button type="button" onClick={() => deleteItem(item._id)}>
+                      Delete
+                    </button>
+                  ) : null}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      ) : null}
+    </section>
+  );
+}
+
+export default OrderList;
+",
+      "kind": "list",
+      "path": "client/src/components/OrderList.tsx",
+      "reason": null,
+    },
+    {
+      "action": "create",
+      "content": "import React, { useEffect, useState } from "react";
+import type { Order } from "../types/order.types";
+import { orderFieldConfig } from "../types/order.types";
+import { useOrder } from "../hooks/useOrder";
+
+function renderFieldValue(value: unknown) {
+  if (Array.isArray(value)) {
+    return value.join(", ");
+  }
+
+  if (typeof value === "boolean") {
+    return value ? "Yes" : "No";
+  }
+
+  return value ? String(value) : "—";
+}
+
+export interface OrderDetailProps {
+  id?: string;
+  item?: Order | null;
+  onEdit?: (item: Order) => void;
+}
+
+export function OrderDetail({ id, item, onEdit }: OrderDetailProps) {
+  const { loadItem, isLoading, error } = useOrder();
+  const [resolvedItem, setResolvedItem] = useState(item ?? null);
+
+  useEffect(() => {
+    setResolvedItem(item ?? null);
+  }, [item]);
+
+  useEffect(() => {
+    if (!id) {
+      return;
+    }
+
+    void loadItem(id).then((nextItem) => {
+      setResolvedItem(nextItem);
+    });
+  }, [id]);
+
+  if (!resolvedItem && isLoading) {
+    return <p>Loading Order...</p>;
+  }
+
+  if (!resolvedItem) {
+    return <p>No Order selected.</p>;
+  }
+
+  return (
+    <section>
+      <h2>Order details</h2>
+      {error ? <p role="alert">{String(error)}</p> : null}
+      <dl>
+        {orderFieldConfig.map((field) => (
+          <React.Fragment key={field.key}>
+            <dt>{field.label}</dt>
+            <dd>{renderFieldValue(resolvedItem[field.key])}</dd>
+          </React.Fragment>
+        ))}
+      </dl>
+      <button type="button" onClick={() => onEdit?.(resolvedItem)}>
+        Edit
+      </button>
+    </section>
+  );
+}
+
+export default OrderDetail;
+",
+      "kind": "detail",
+      "path": "client/src/components/OrderDetail.tsx",
+      "reason": null,
+    },
+    {
+      "action": "create",
+      "content": "import { z } from "zod/v4";
+import { body, validationResult } from "express-validator";
+import type { NextFunction, Request, Response } from "express";
+
+const createOrderSchema = z.object({
+  status: z.enum(["draft", "placed", "shipped"]),
+  customer: z.string(),
+});
+
+const updateOrderSchema = createOrderSchema.partial();
+
+function runZodSchema(schema: typeof createOrderSchema) {
+  return (request: Request, response: Response, next: NextFunction) => {
+    const parsed = schema.safeParse(request.body);
+
+    if (!parsed.success) {
+      response.status(400).json({
+        message: "Validation failed",
+        errors: parsed.error.flatten(),
+      });
+      return;
+    }
+
+    request.body = parsed.data;
+    next();
+  };
+}
+
+function handleValidationErrors(request: Request, response: Response, next: NextFunction) {
+  const result = validationResult(request);
+
+  if (!result.isEmpty()) {
+    response.status(400).json({
+      message: "Validation failed",
+      errors: result.array(),
+    });
+    return;
+  }
+
+  next();
+}
+
+export const createOrderValidators = [
+  runZodSchema(createOrderSchema),
+  body("status").isString().isIn(["draft", "placed", "shipped"]),
+  body("customer").isMongoId(),
+  handleValidationErrors,
+];
+
+export const updateOrderValidators = [
+  runZodSchema(updateOrderSchema),
+  body("status").optional().isString().isIn(["draft", "placed", "shipped"]),
+  body("customer").optional().isMongoId(),
+  handleValidationErrors,
+];
+",
+      "kind": "validator",
+      "path": "server/src/validators/order.validator.ts",
+      "reason": null,
+    },
+    {
+      "action": "create",
+      "content": "import type { NextFunction, Request, Response } from "express";
+import jwt, { type JwtPayload } from "jsonwebtoken";
+
+type AuthenticatedRequest = Request & {
+  user?: string | JwtPayload;
+};
+
+export function authMiddleware(request: Request, response: Response, next: NextFunction) {
+  const header = request.headers.authorization;
+
+  if (!header || !header.startsWith("Bearer ")) {
+    response.status(401).json({
+      message: "Missing bearer token",
+    });
+    return;
+  }
+
+  const token = header.slice("Bearer ".length);
+
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET ?? "change-me");
+    (request as AuthenticatedRequest).user = decoded;
+    next();
+  } catch (error) {
+    response.status(401).json({
+      message: "Invalid bearer token",
+      error: error instanceof Error ? error.message : "Unknown error",
+    });
+  }
+}
+",
+      "kind": "middleware",
+      "path": "server/src/middleware/auth.middleware.ts",
+      "reason": null,
+    },
+    {
+      "action": "update",
+      "content": "import orderRoutes from "./routes/order.routes";
+import express from "express";
+
+const app = express();
+
+app.use(express.json());
+
+export default app;
+app.use("/api/orders", orderRoutes);
+",
+      "kind": "integration",
+      "path": "server/src/index.ts",
+      "reason": null,
+    },
+    {
+      "action": "update",
+      "content": "import { OrderDetail } from "./components/OrderDetail";
+import { OrderForm } from "./components/OrderForm";
+import { OrderList } from "./components/OrderList";
+import { createBrowserRouter } from "react-router-dom";
+
+export const router = createBrowserRouter([{
+  path: "/orders",
+  element: <OrderList />
+}, {
+  path: "/orders/new",
+  element: <OrderForm />
+}, {
+  path: "/orders/:id",
+  element: <OrderDetail />
+}]);
+",
+      "kind": "integration",
+      "path": "client/src/router.tsx",
+      "reason": null,
+    },
+    {
+      "action": "update",
+      "content": "import { orderReducer, orderStoreKey } from "./api/order.api";
+import { configureStore } from "@reduxjs/toolkit";
+
+export const store = configureStore({
+  reducer: {
+    [orderStoreKey]: orderReducer
+  }
+});
+",
+      "kind": "integration",
+      "path": "client/src/store.ts",
+      "reason": null,
+    },
+  ],
+  "conflicts": [],
+  "integrationActions": [
+    {
+      "applied": false,
+      "description": "Ensure target project dependencies include: @reduxjs/toolkit, express, express-validator, jsonwebtoken, mongoose, react-redux, zod",
+      "kind": "manual",
+      "path": undefined,
+    },
+    {
+      "applied": true,
+      "description": "Mount Order routes in server entry",
+      "kind": "patch",
+      "path": "<absolute-path>",
+      "relativePath": "server/src/index.ts",
+    },
+    {
+      "applied": true,
+      "description": "Register Order routes in client router",
+      "kind": "patch",
+      "path": "<absolute-path>",
+      "relativePath": "client/src/router.tsx",
+    },
+    {
+      "applied": true,
+      "description": "Register Order reducer in Redux store",
+      "kind": "patch",
+      "path": "<absolute-path>",
+      "relativePath": "client/src/store.ts",
+    },
+  ],
+  "integrationSummary": [
+    "Ensure target project dependencies include: @reduxjs/toolkit, express, express-validator, jsonwebtoken, mongoose, react-redux, zod",
+    "Mount Order routes in server entry (server/src/index.ts)",
+    "Register Order routes in client router (client/src/router.tsx)",
+    "Register Order reducer in Redux store (client/src/store.ts)",
+  ],
+  "mode": "preview",
+  "normalizedResource": {
+    "description": null,
+    "fields": [
+      {
+        "enumValues": [
+          "draft",
+          "placed",
+          "shipped",
+        ],
+        "isArray": false,
+        "key": "status",
+        "name": "status",
+        "ref": null,
+        "required": true,
+        "type": "string",
+      },
+      {
+        "enumValues": [],
+        "isArray": false,
+        "key": "customer",
+        "name": "customer",
+        "ref": "User",
+        "required": true,
+        "type": "objectId",
+      },
+    ],
+    "resourceName": "Order",
+  },
+  "previewHash": "<previewHash>",
+  "resourceName": "Order",
+  "summary": "Order: 12 generated artifact(s), no conflicts.",
+  "writeResult": null,
+}
+`;

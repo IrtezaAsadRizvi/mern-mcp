@@ -1,0 +1,42 @@
+import React, { useEffect } from "react";
+import { useDispatch, useSelector } from "react-redux";
+{{#if isTypeScript}}
+import type { {{formValuesName}} } from "../types/{{names.singularKebab}}.types";
+{{/if}}
+import {
+  create{{entityName}}Thunk,
+  delete{{entityName}}Thunk,
+  fetch{{entityName}}Thunk,
+  fetch{{names.pluralPascal}}Thunk,
+  initial{{entityName}}State,
+  update{{entityName}}Thunk,
+  {{names.singularCamel}}StoreKey
+} from "../api/{{names.singularKebab}}.api";
+
+export function use{{entityName}}() {
+  const dispatch = useDispatch{{#if isTypeScript}}<any>{{/if}}();
+  const state = useSelector((rootState{{#if isTypeScript}}: Record<string, typeof initial{{entityName}}State>{{/if}}) => {
+    return rootState[{{names.singularCamel}}StoreKey] ?? initial{{entityName}}State;
+  });
+
+  useEffect(() => {
+    void dispatch(fetch{{names.pluralPascal}}Thunk());
+  }, [dispatch]);
+
+  return {
+    items: state.items,
+    item: state.item,
+    isLoading: state.isLoading,
+    error: state.error,
+    refresh: () => dispatch(fetch{{names.pluralPascal}}Thunk()).unwrap(),
+    loadItem: (id{{#if isTypeScript}}: string{{/if}}) => dispatch(fetch{{entityName}}Thunk(id)).unwrap(),
+    createItem: (payload{{#if isTypeScript}}: {{formValuesName}}{{/if}}) =>
+      dispatch(create{{entityName}}Thunk(payload)).unwrap(),
+    updateItem: (id{{#if isTypeScript}}: string{{/if}}, payload{{#if isTypeScript}}: {{formValuesName}}{{/if}}) =>
+      dispatch(update{{entityName}}Thunk({ id, payload })).unwrap(),
+    deleteItem: (id{{#if isTypeScript}}: string{{/if}}) =>
+      dispatch(delete{{entityName}}Thunk(id)).unwrap()
+  };
+}
+
+export default use{{entityName}};

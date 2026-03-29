@@ -1,0 +1,54 @@
+{{#if isTypeScript}}
+import type { Request, Response } from "express";
+
+{{/if}}
+import * as {{names.singularCamel}}Service from "../services/{{names.singularKebab}}.service";
+
+export async function list{{names.pluralPascal}}(_request{{#if isTypeScript}}: Request{{/if}}, response{{#if isTypeScript}}: Response{{/if}}) {
+  const items = await {{names.singularCamel}}Service.list{{names.pluralPascal}}();
+  response.json(items);
+}
+
+export async function get{{entityName}}(request{{#if isTypeScript}}: Request{{/if}}, response{{#if isTypeScript}}: Response{{/if}}) {
+  const item = await {{names.singularCamel}}Service.get{{entityName}}ById(request.params.id);
+
+  if (!item) {
+    response.status(404).json({
+      message: "{{entityName}} not found"
+    });
+    return;
+  }
+
+  response.json(item);
+}
+
+export async function create{{entityName}}(request{{#if isTypeScript}}: Request{{/if}}, response{{#if isTypeScript}}: Response{{/if}}) {
+  const created = await {{names.singularCamel}}Service.create{{entityName}}(request.body);
+  response.status(201).json(created);
+}
+
+export async function update{{entityName}}(request{{#if isTypeScript}}: Request{{/if}}, response{{#if isTypeScript}}: Response{{/if}}) {
+  const updated = await {{names.singularCamel}}Service.update{{entityName}}(request.params.id, request.body);
+
+  if (!updated) {
+    response.status(404).json({
+      message: "{{entityName}} not found"
+    });
+    return;
+  }
+
+  response.json(updated);
+}
+
+export async function delete{{entityName}}(request{{#if isTypeScript}}: Request{{/if}}, response{{#if isTypeScript}}: Response{{/if}}) {
+  const deleted = await {{names.singularCamel}}Service.delete{{entityName}}(request.params.id);
+
+  if (!deleted) {
+    response.status(404).json({
+      message: "{{entityName}} not found"
+    });
+    return;
+  }
+
+  response.status(204).send();
+}

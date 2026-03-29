@@ -1,0 +1,67 @@
+{
+  "name": "mern-mcp",
+  "version": "0.1.0",
+  "description": "Open-source MCP server for scaffolding MERN stack CRUD resources, Express APIs, Mongoose models, React forms, and client integrations.",
+  "type": "module",
+  "bin": {
+    "mern-mcp": "./dist/index.js"
+  },
+  "files": [
+    "dist",
+    "README.md"
+  ],
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json && node scripts/copy-templates.mjs",
+    "check": "tsc --noEmit",
+    "dev": "tsx src/index.ts",
+    "start": "node dist/index.js",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "smoke": "tsx scripts/smoke.ts"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "keywords": [
+    "mcp",
+    "model-context-protocol",
+    "mern",
+    "mern-stack",
+    "mongodb",
+    "mongoose",
+    "express",
+    "react",
+    "node",
+    "crud",
+    "crud-generator",
+    "scaffold",
+    "scaffolder",
+    "code-generator",
+    "codegen",
+    "react-query",
+    "redux",
+    "axios",
+    "zod",
+    "express-validator",
+    "ai-coding"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "@babel/parser": "^7.29.2",
+    "@modelcontextprotocol/sdk": "^1.28.0",
+    "fast-glob": "^3.3.3",
+    "handlebars": "^4.7.8",
+    "pluralize": "^8.0.0",
+    "prettier": "^3.8.1",
+    "recast": "^0.23.11",
+    "zod": "^4.3.6"
+  },
+  "devDependencies": {
+    "@types/node": "^25.5.0",
+    "@types/pluralize": "^0.0.33",
+    "tsx": "^4.21.0",
+    "typescript": "^6.0.2",
+    "vitest": "^4.1.1"
+  }
+}

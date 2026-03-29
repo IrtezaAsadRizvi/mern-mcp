@@ -1,0 +1,13 @@
+{
+  "structure": "monorepo",
+  "language": "javascript",
+  "reactStack": "plain",
+  "validation": "express-validator",
+  "auth": "none",
+  "paths": {
+    "serverRoot": "./server",
+    "clientRoot": "./client",
+    "serverEntry": "app.js",
+    "clientRouter": "router.jsx"
+  }
+}

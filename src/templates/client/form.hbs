@@ -1,0 +1,170 @@
+import React, { useEffect, useState } from "react";
+{{#if isTypeScript}}
+import type { {{entityName}}, {{formValuesName}} } from "../types/{{names.singularKebab}}.types";
+{{/if}}
+import { {{fieldConfigName}}, {{initialValuesName}} } from "../types/{{names.singularKebab}}.types";
+import { use{{entityName}} } from "../hooks/use{{entityName}}";
+
+{{#if isTypeScript}}
+export interface {{entityName}}FormProps {
+  value?: {{entityName}} | null;
+  onSuccess?: (item: {{entityName}}) => void;
+}
+{{/if}}
+
+function getFieldValue(value{{#if isTypeScript}}: unknown{{/if}}) {
+  if (Array.isArray(value)) {
+    return value.join(", ");
+  }
+
+  return value ?? "";
+}
+
+{{#if isTypeScript}}
+export function {{entityName}}Form({ value, onSuccess }: {{entityName}}FormProps) {
+{{else}}
+export function {{entityName}}Form({ value, onSuccess }) {
+{{/if}}
+  const { createItem, updateItem, isLoading, error } = use{{entityName}}();
+  const [formValues, setFormValues] = useState{{#if isTypeScript}}<{{formValuesName}}>{{/if}}(() => ({
+    ...{{initialValuesName}},
+    ...(value ?? {})
+  }));
+
+  useEffect(() => {
+    setFormValues({
+      ...{{initialValuesName}},
+      ...(value ?? {})
+    });
+  }, [value]);
+
+  const handleFieldChange = (
+    fieldKey{{#if isTypeScript}}: string{{/if}},
+    nextValue{{#if isTypeScript}}: unknown{{/if}}
+  ) => {
+    setFormValues((current) => ({
+      ...current,
+      [fieldKey]: nextValue
+    }));
+  };
+
+  const handleSubmit = async (event{{#if isTypeScript}}: React.FormEvent<HTMLFormElement>{{/if}}) => {
+    event.preventDefault();
+
+    const saved = value?._id
+      ? await updateItem(value._id, formValues)
+      : await createItem(formValues);
+
+    if (!value?._id) {
+      setFormValues({ ...{{initialValuesName}} });
+    }
+
+    onSuccess?.(saved);
+  };
+
+  return (
+    <form onSubmit={handleSubmit}>
+      <h2>{value?._id ? "Edit {{entityName}}" : "Create {{entityName}}"}</h2>
+      {error ? <p role="alert">{String(error)}</p> : null}
+      { {{fieldConfigName}}.map((field) => {
+        const currentValue = formValues[field.key];
+
+        if (field.widget === "textarea") {
+          return (
+            <label key={field.key}>
+              <span>{field.label}</span>
+              <textarea
+                value={String(getFieldValue(currentValue))}
+                onChange={(event) => handleFieldChange(field.key, event.target.value)}
+              />
+            </label>
+          );
+        }
+
+        if (field.widget === "select") {
+          return (
+            <label key={field.key}>
+              <span>{field.label}</span>
+              <select
+                value={String(currentValue ?? "")}
+                onChange={(event) => handleFieldChange(field.key, event.target.value)}
+              >
+                <option value="">Select {field.label}</option>
+                {(field.options ?? []).map((option) => (
+                  <option key={option} value={option}>
+                    {option}
+                  </option>
+                ))}
+              </select>
+            </label>
+          );
+        }
+
+        if (field.widget === "multiselect") {
+          return (
+            <label key={field.key}>
+              <span>{field.label}</span>
+              <select
+                multiple
+                value={Array.isArray(currentValue) ? currentValue.map(String) : []}
+                onChange={(event) =>
+                  handleFieldChange(
+                    field.key,
+                    Array.from(event.target.selectedOptions).map((option) => option.value)
+                  )
+                }
+              >
+                {(field.options ?? []).map((option) => (
+                  <option key={option} value={option}>
+                    {option}
+                  </option>
+                ))}
+              </select>
+            </label>
+          );
+        }
+
+        if (field.widget === "checkbox") {
+          return (
+            <label key={field.key}>
+              <input
+                checked={Boolean(currentValue)}
+                type="checkbox"
+                onChange={(event) => handleFieldChange(field.key, event.target.checked)}
+              />
+              <span>{field.label}</span>
+            </label>
+          );
+        }
+
+        return (
+          <label key={field.key}>
+            <span>{field.label}</span>
+            <input
+              type={field.inputType}
+              value={String(getFieldValue(currentValue))}
+              onChange={(event) =>
+                handleFieldChange(
+                  field.key,
+                  field.widget === "tags"
+                    ? event.target.value
+                        .split(",")
+                        .map((part) => part.trim())
+                        .filter(Boolean)
+                    : field.inputType === "number"
+                      ? Number(event.target.value)
+                      : event.target.value
+                )
+              }
+            />
+          </label>
+        );
+      }) }
+      <button disabled={isLoading} type="submit">
+        {isLoading ? "Saving..." : "Save {{entityName}}"}
+      </button>
+    </form>
+  );
+}
+
+export default {{entityName}}Form;

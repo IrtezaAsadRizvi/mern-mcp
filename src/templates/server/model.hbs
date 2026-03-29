@@ -1,0 +1,20 @@
+import { Schema, model{{#if isTypeScript}}, type InferSchemaType{{/if}} } from "mongoose";
+
+const {{names.singularCamel}}Schema = new Schema(
+  {
+{{#each fields}}
+    {{key}}: {{{mongooseSchemaValue}}}{{#unless @last}},{{/unless}}
+{{/each}}
+  },
+  {
+    timestamps: true
+  }
+);
+
+{{#if isTypeScript}}
+export type {{entityName}}Document = InferSchemaType<typeof {{names.singularCamel}}Schema>;
+
+{{/if}}
+export const {{entityName}}Model = model("{{entityName}}", {{names.singularCamel}}Schema);
+
+export default {{entityName}}Model;

@@ -1,0 +1,46 @@
+{{#if isTypeScript}}
+export interface {{entityName}} {
+  _id?: string;
+{{#each fields}}
+  {{key}}{{#unless required}}?{{/unless}}: {{{tsType}}};
+{{/each}}
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+export interface {{formValuesName}} {
+{{#each fields}}
+  {{key}}: {{{tsType}}};
+{{/each}}
+}
+
+export interface {{entityName}}FieldConfig {
+  key: keyof {{formValuesName}};
+  label: string;
+  required: boolean;
+  widget: string;
+  inputType: string;
+  isArray: boolean;
+  options?: string[];
+}
+{{/if}}
+
+export const {{fieldConfigName}}{{#if isTypeScript}}: {{entityName}}FieldConfig[]{{/if}} = [
+{{#each fields}}
+  {
+    key: "{{key}}",
+    label: "{{label}}",
+    required: {{required}},
+    widget: "{{formWidget}}",
+    inputType: "{{formInputType}}",
+    isArray: {{isArray}},
+    options: {{#if enumValues.length}}{{{json enumValues}}}{{else}}undefined{{/if}}
+  }{{#unless @last}},{{/unless}}
+{{/each}}
+];
+
+export const {{initialValuesName}}{{#if isTypeScript}}: {{formValuesName}}{{/if}} = {
+{{#each fields}}
+  {{key}}: {{{initialValue}}}{{#unless @last}},{{/unless}}
+{{/each}}
+};

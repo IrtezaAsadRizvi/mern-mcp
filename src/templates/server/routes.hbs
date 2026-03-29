@@ -1,0 +1,32 @@
+import { Router } from "express";
+
+import {
+  create{{entityName}},
+  delete{{entityName}},
+  get{{entityName}},
+  list{{names.pluralPascal}},
+  update{{entityName}}
+} from "../controllers/{{names.singularKebab}}.controller";
+{{#if (or usesZod usesExpressValidator)}}
+import {
+  create{{entityName}}Validators,
+  update{{entityName}}Validators
+} from "../validators/{{names.singularKebab}}.validator";
+{{/if}}
+{{#if usesJwtAuth}}
+import { authMiddleware } from "../middleware/auth.middleware";
+{{/if}}
+
+const router = Router();
+
+{{#if usesJwtAuth}}
+router.use(authMiddleware);
+
+{{/if}}
+router.get("/", list{{names.pluralPascal}});
+router.get("/:id", get{{entityName}});
+router.post("/", {{#if (or usesZod usesExpressValidator)}}...create{{entityName}}Validators, {{/if}}create{{entityName}});
+router.put("/:id", {{#if (or usesZod usesExpressValidator)}}...update{{entityName}}Validators, {{/if}}update{{entityName}});
+router.delete("/:id", delete{{entityName}});
+
+export default router;

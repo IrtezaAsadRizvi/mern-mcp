@@ -1,0 +1,131 @@
+import React, { useEffect, useState } from "react";
+{{#if isTypeScript}}
+import type { {{entityName}}, {{formValuesName}} } from "../types/{{names.singularKebab}}.types";
+{{/if}}
+import {
+  create{{entityName}},
+  delete{{entityName}},
+  get{{entityName}},
+  list{{names.pluralPascal}},
+  update{{entityName}}
+} from "../api/{{names.singularKebab}}.api";
+
+{{#if isTypeScript}}
+export function use{{entityName}}() {
+  const [items, setItems] = useState<{{entityName}}[]>([]);
+  const [item, setItem] = useState<{{entityName}} | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+{{else}}
+export function use{{entityName}}() {
+  const [items, setItems] = useState([]);
+  const [item, setItem] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState(null);
+{{/if}}
+
+  const refresh = async () => {
+    setIsLoading(true);
+    setError(null);
+
+    try {
+      const nextItems = await list{{names.pluralPascal}}();
+      setItems(nextItems);
+      return nextItems;
+    } catch (nextError) {
+      setError(nextError instanceof Error ? nextError.message : "Unknown error");
+      throw nextError;
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    void refresh();
+  }, []);
+
+  const loadItem = async (id{{#if isTypeScript}}: string{{/if}}) => {
+    setIsLoading(true);
+    setError(null);
+
+    try {
+      const nextItem = await get{{entityName}}(id);
+      setItem(nextItem);
+      return nextItem;
+    } catch (nextError) {
+      setError(nextError instanceof Error ? nextError.message : "Unknown error");
+      throw nextError;
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const createItem = async (
+    payload{{#if isTypeScript}}: {{formValuesName}}{{/if}}
+  ) => {
+    setIsLoading(true);
+    setError(null);
+
+    try {
+      const created = await create{{entityName}}(payload);
+      setItems((current) => [created, ...current]);
+      setItem(created);
+      return created;
+    } catch (nextError) {
+      setError(nextError instanceof Error ? nextError.message : "Unknown error");
+      throw nextError;
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const updateItem = async (
+    id{{#if isTypeScript}}: string{{/if}},
+    payload{{#if isTypeScript}}: {{formValuesName}}{{/if}}
+  ) => {
+    setIsLoading(true);
+    setError(null);
+
+    try {
+      const updated = await update{{entityName}}(id, payload);
+      setItems((current) => current.map((entry) => (entry._id === updated._id ? updated : entry)));
+      setItem(updated);
+      return updated;
+    } catch (nextError) {
+      setError(nextError instanceof Error ? nextError.message : "Unknown error");
+      throw nextError;
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const removeItem = async (id{{#if isTypeScript}}: string{{/if}}) => {
+    setIsLoading(true);
+    setError(null);
+
+    try {
+      await delete{{entityName}}(id);
+      setItems((current) => current.filter((entry) => entry._id !== id));
+      setItem((current) => (current?._id === id ? null : current));
+    } catch (nextError) {
+      setError(nextError instanceof Error ? nextError.message : "Unknown error");
+      throw nextError;
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  return {
+    items,
+    item,
+    isLoading,
+    error,
+    refresh,
+    loadItem,
+    createItem,
+    updateItem,
+    deleteItem: removeItem
+  };
+}
+
+export default use{{entityName}};
