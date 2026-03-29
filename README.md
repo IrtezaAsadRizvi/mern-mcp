@@ -1,12 +1,17 @@
-# MERN MCP
+<h1 align="center">
+  <img src="./assets/mern-mcp-logo.svg" alt="MERN MCP logo" width="132" height="132"><br>
+  MERN MCP
+</h1>
 
-![License: MIT](https://img.shields.io/badge/license-MIT-111827?style=for-the-badge)
-![Node.js >=20](https://img.shields.io/badge/node-%3E%3D20-339933?style=for-the-badge&logo=node.js&logoColor=white)
-![TypeScript](https://img.shields.io/badge/typescript-yes-3178C6?style=for-the-badge&logo=typescript&logoColor=white)
-![MCP Server](https://img.shields.io/badge/MCP-server-0F172A?style=for-the-badge)
-![Claude Code](https://img.shields.io/badge/Claude%20Code-supported-D97757?style=for-the-badge)
-![Codex CLI](https://img.shields.io/badge/Codex-supported-3941FF?style=for-the-badge)
-![Docker](https://img.shields.io/badge/Docker-supported-2496ED?style=for-the-badge&logo=docker&logoColor=white)
+<p align="center">
+  <img alt="License: MIT" src="https://img.shields.io/badge/license-MIT-111827?style=for-the-badge">
+  <img alt="Node.js >=20" src="https://img.shields.io/badge/node-%3E%3D20-339933?style=for-the-badge&logo=node.js&logoColor=white">
+  <img alt="TypeScript" src="https://img.shields.io/badge/typescript-yes-3178C6?style=for-the-badge&logo=typescript&logoColor=white">
+  <img alt="MCP Server" src="https://img.shields.io/badge/MCP-server-0F172A?style=for-the-badge">
+  <img alt="Claude Code" src="https://img.shields.io/badge/Claude%20Code-supported-D97757?style=for-the-badge">
+  <img alt="Codex CLI" src="https://img.shields.io/badge/Codex-supported-3941FF?style=for-the-badge">
+  <img alt="Docker" src="https://img.shields.io/badge/Docker-supported-2496ED?style=for-the-badge&logo=docker&logoColor=white">
+</p>
 
 ## AI-Powered MERN Stack CRUD Scaffolder and MCP Server
 
@@ -14,9 +19,13 @@
 
 If you are searching for an MCP server for MERN stack development, a MongoDB Express React Node.js CRUD generator, a Mongoose plus Express boilerplate generator, or a React admin scaffolder that works with AI coding assistants, this repository is built for that exact use case.
 
+**Index:** [Why Useful](#why-this-repository-is-useful) · [Generated Files](#what-mern-mcp-generates) · [Install](#installation) · [Config](#configuration) · [Claude Code](#use-with-claude-code) · [Codex CLI](#use-with-codex-cli) · [Docker](#run-with-docker) · [MCP Tools](#mcp-tools) · [Example](#example-resource-input) · [Project Styles](#supported-project-styles) · [Natural Language](#natural-language-or-explicit-fields) · [Preview Workflow](#safer-preview-first-workflow) · [Who It's For](#who-this-project-is-for) · [Search Keywords](#search-intent-and-keywords) · [Geo Discovery](#geo-relevant-discovery) · [SEO Value](#why-this-repo-can-rank-for-relevant-searches) · [Checks](#development-checks)
+
 ## Why This Repository Is Useful
 
 Teams usually do not need another generic code generator. They need a local MCP tool that can inspect a project, follow an existing folder structure, create repeatable CRUD slices, and avoid blind writes. `mern-mcp` focuses on that practical workflow.
+
+Even if you already have MCPs for Next.js, Node.js, or MongoDB, those tools usually help at the framework or database level. `mern-mcp` is useful because it handles the full resource workflow in one place: model, service, controller, routes, validators, client API, hooks, forms, list views, detail views, and integration patches. Instead of asking an assistant to wire each layer separately, a developer can scaffold an entire CRUD slice in one pass, review the plan, and move on to the business logic faster. That cuts repetitive setup work, reduces missed integration steps, and makes day-to-day full-stack development much less tedious.
 
 It is especially useful when you want to:
 
@@ -140,7 +149,7 @@ Example for separate client and server apps with Redux and JWT auth:
 
 All artifact directories are overridable through `paths`.
 
-<h2><img src="./assets/claude.svg" alt="Claude" width="20" height="20"> Use With Claude Code</h2>
+<h2 id="use-with-claude-code"><img src="./assets/claude.svg" alt="Claude" width="20" height="20"> Use With Claude Code</h2>
 
 1. Install dependencies and build this repository:
 
@@ -159,7 +168,7 @@ claude mcp add mern-mcp -- node /absolute/path/to/mern-mcp/dist/index.js --proje
 4. Confirm the server is available in Claude Code.
 5. Start with `preview_scaffold` before using `scaffold_resource` in apply mode.
 
-<h2><img src="./assets/codex.svg" alt="Codex" width="20" height="20"> Use With Codex CLI</h2>
+<h2 id="use-with-codex-cli"><img src="./assets/codex.svg" alt="Codex" width="20" height="20"> Use With Codex CLI</h2>
 
 1. Install dependencies and build this repository:
 
